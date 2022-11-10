@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.github.themobilitybox'
-version = '0.3.0'
+version = '0.4.1'
 
 android {
     namespace 'com.vesputi.mobilitybox_ticketing_android'
@@ -19,8 +19,8 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
 
-        versionCode 2
-        versionName "0.3.0"
+        versionCode 3
+        versionName "0.4.1"
     }
 
     buildTypes {
@@ -63,7 +63,7 @@ afterEvaluate {
                 from components.release
                 groupId = 'com.github.themobilitybox'
                 artifactId = 'MobilityboxTicketingAndroidSDK'
-                version = '0.3.0'
+                version = '0.4.1'
             }
         }
     }
