@@ -5,6 +5,9 @@ plugins {
     id 'maven-publish'
 }
 
+group = 'com.github.themobilitybox'
+version = '0.3.0'
+
 android {
     namespace 'com.vesputi.mobilitybox_ticketing_android'
     compileSdk 32
@@ -15,6 +18,9 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
+
+        versionCode 2
+        versionName "0.3.0"
     }
 
     buildTypes {
@@ -47,4 +53,18 @@ dependencies {
     // json parser
     implementation 'com.google.code.gson:gson:2.9.1'
 
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            // Creates a Maven publication called "release".
+            release(MavenPublication) {
+                from components.release
+                groupId = 'com.github.themobilitybox'
+                artifactId = 'MobilityboxTicketingAndroidSDK'
+                version = '0.3.0'
+            }
+        }
+    }
 }
