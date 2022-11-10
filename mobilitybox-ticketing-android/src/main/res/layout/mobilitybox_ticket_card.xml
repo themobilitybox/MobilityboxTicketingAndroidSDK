@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rowContainer"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/transparent"
+    >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="12dp"
+        android:background="@drawable/mobilitybox_rounded_card"
+        android:elevation="8dp"
+        android:paddingBottom="18dp" >
+
+        <LinearLayout
+            android:id="@+id/rowTextContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+
+            android:layout_marginStart="18dp"
+            android:layout_marginEnd="18dp"
+            android:layout_toStartOf="@+id/fakeBarcodeImageView"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/titleTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp"
+                android:text="Title"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="16dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/descriptionTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="16dp"
+                android:paddingBottom="8dp"
+                android:text="Beschreibung"
+                android:textColor="@color/black"
+                android:textSize="10dp" />
+
+            <TextView
+                android:id="@+id/addedAtText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="16dp"
+                android:text="hinzugefügt vor: "
+                android:textAlignment="textEnd"
+                android:textColor="@color/gray_dark"
+                android:textSize="10dp"
+                android:textStyle="italic"
+                android:paddingBottom="8dp" />
+        </LinearLayout>
+
+
+        <ImageView
+            android:id="@+id/fakeBarcodeImageView"
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="18dp"
+            android:layout_marginEnd="18dp"
+            app:srcCompat="@drawable/mobilitybox_fake_barcode" />
+
+
+        <TextView
+            android:id="@+id/imageButtonTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/fakeBarcodeImageView"
+            android:layout_alignRight="@id/fakeBarcodeImageView"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="-4dp"
+            android:layout_marginLeft="-4dp"
+            android:layout_marginEnd="-4dp"
+            android:layout_marginRight="-4dp"
+            android:background="@drawable/mobilitybox_rounded_button"
+            android:backgroundTintMode="src_over"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="laden..."
+            android:textAlignment="center"
+            android:textColor="#FFF"
+            android:textIsSelectable="false"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/testBanner"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="1dp"
+            android:layout_marginTop="13dp"
+            android:background="@color/orange"
+            android:rotation="-45"
+            android:text="TEST"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="10sp"
+            android:padding="2dp"
+            android:translationX="-55dp"
+            android:translationY="-5dp"
+            android:elevation="5dp"
+            android:visibility="gone" />
+
+    </RelativeLayout>
+</LinearLayout>
