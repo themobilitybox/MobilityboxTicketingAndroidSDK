@@ -1,9 +1,7 @@
-package com.mobilitybox.android.models
+package com.vesputi.mobilitybox_ticketing_android.models
 
 import android.os.Parcelable
 import android.util.Log
-import com.vesputi.mobilitybox_ticketing_android.models.MobilityboxApi
-import com.vesputi.mobilitybox_ticketing_android.models.MobilityboxError
 import com.google.gson.GsonBuilder
 import kotlinx.parcelize.Parcelize
 import okhttp3.*

@@ -1,4 +1,4 @@
-package com.vesputi.mobilitywallet.views
+package com.vesputi.mobilitybox_ticketing_android.views
 
 import android.annotation.TargetApi
 import android.content.ActivityNotFoundException
@@ -20,9 +20,9 @@ import com.vesputi.mobilitybox_ticketing_android.R
 import com.vesputi.mobilitybox_ticketing_android.models.Mobilitybox
 import com.vesputi.mobilitybox_ticketing_android.views.MobilityboxBottomSheetFragment
 import com.google.gson.GsonBuilder
-import com.mobilitybox.android.models.MobilityboxCoupon
-import com.mobilitybox.android.models.MobilityboxIdentificationMedium
-import com.mobilitybox.android.models.MobilityboxTicketCode
+import com.vesputi.mobilitybox_ticketing_android.models.MobilityboxCoupon
+import com.vesputi.mobilitybox_ticketing_android.models.MobilityboxIdentificationMedium
+import com.vesputi.mobilitybox_ticketing_android.models.MobilityboxTicketCode
 
 class MobilityboxIdentificationFragment : Fragment() {
     lateinit var identificationView: WebView

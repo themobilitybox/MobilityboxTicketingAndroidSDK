@@ -8,11 +8,9 @@ import android.widget.ImageView
 import androidx.core.os.bundleOf
 import com.vesputi.mobilitybox_ticketing_android.R
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.mobilitybox.android.models.MobilityboxCoupon
-import com.mobilitybox.android.models.MobilityboxTicket
-import com.mobilitybox.android.models.MobilityboxTicketCode
-import com.vesputi.mobilitywallet.views.MobilityboxIdentificationFragment
-import com.vesputi.mobilitywallet.views.MobilityboxTicketInspectionFragment
+import com.vesputi.mobilitybox_ticketing_android.models.MobilityboxCoupon
+import com.vesputi.mobilitybox_ticketing_android.models.MobilityboxTicket
+import com.vesputi.mobilitybox_ticketing_android.models.MobilityboxTicketCode
 
 class MobilityboxBottomSheetFragment : BottomSheetDialogFragment() {
     private var coupon: MobilityboxCoupon? = null

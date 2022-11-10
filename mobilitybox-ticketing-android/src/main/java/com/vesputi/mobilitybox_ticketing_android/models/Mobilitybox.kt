@@ -1,8 +1,6 @@
 package com.vesputi.mobilitybox_ticketing_android.models
 
 import android.content.SharedPreferences
-import com.mobilitybox.android.models.MobilityboxIdentificationViewEngine
-import com.mobilitybox.android.models.MobilityboxTicketRenderingEngine
 
 object Mobilitybox {
     lateinit var preferences: SharedPreferences

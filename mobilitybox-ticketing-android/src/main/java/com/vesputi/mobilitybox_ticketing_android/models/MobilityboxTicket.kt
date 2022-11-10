@@ -1,4 +1,4 @@
-package com.mobilitybox.android.models
+package com.vesputi.mobilitybox_ticketing_android.models
 
 import android.os.Parcelable
 import com.google.gson.JsonElement

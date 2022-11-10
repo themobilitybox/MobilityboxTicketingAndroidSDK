@@ -1,8 +1,6 @@
-package com.mobilitybox.android.models
+package com.vesputi.mobilitybox_ticketing_android.models
 
 import android.util.Log
-import com.vesputi.mobilitybox_ticketing_android.models.Mobilitybox
-import com.vesputi.mobilitybox_ticketing_android.models.MobilityboxApi
 import okhttp3.*
 import okio.IOException
 import java.net.URL

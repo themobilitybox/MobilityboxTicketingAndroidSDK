@@ -1,4 +1,4 @@
-package com.vesputi.mobilitywallet.views
+package com.vesputi.mobilitybox_ticketing_android.views
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -10,7 +10,7 @@ import android.webkit.WebViewClient
 import com.vesputi.mobilitybox_ticketing_android.R
 import com.vesputi.mobilitybox_ticketing_android.models.Mobilitybox
 import com.google.gson.GsonBuilder
-import com.mobilitybox.android.models.MobilityboxTicket
+import com.vesputi.mobilitybox_ticketing_android.models.MobilityboxTicket
 
 class MobilityboxTicketInspectionFragment : Fragment() {
     lateinit var ticketInspectionView: WebView
