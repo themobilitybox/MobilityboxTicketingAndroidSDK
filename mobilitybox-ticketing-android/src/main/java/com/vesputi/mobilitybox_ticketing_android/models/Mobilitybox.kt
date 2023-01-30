@@ -27,7 +27,7 @@ object MobilityboxApi {
         println("MobilityboxApi class invoked.")
     }
 
-    var apiUrl = "https://api.themobilitybox.com/v2"
+    var apiUrl = "https://api.themobilitybox.com/v3"
 
     fun setup(apiConfig: MobilityboxApiConfig? = null) {
         if (apiConfig?.apiURL != null) {
