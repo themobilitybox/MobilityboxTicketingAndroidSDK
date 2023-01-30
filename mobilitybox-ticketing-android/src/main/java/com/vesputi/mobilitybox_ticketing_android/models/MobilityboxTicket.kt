@@ -10,6 +10,8 @@ import java.util.Date
 @Parcelize
 class MobilityboxTicket(
     val id: String,
+    val coupon_id: String,
+    val coupon_reactivation_key: String?,
     val product: MobilityboxOrderedProduct?,
     val ticket: MobilityboxTicketDetails?,
     val area: MobilityboxTicketArea?,
@@ -17,9 +19,9 @@ class MobilityboxTicket(
     val valid_from: String,
     val valid_until: String,
     val ticket_created_at: String,
-    var couponId: String?,
-    var createdAt: Date? = Date()
-
+    val sold_at: String,
+    var createdAt: Date? = Date(),
+    var wasReactivated: Boolean? = false
 ) : Parcelable {
 
     fun getTitle(): (String) {

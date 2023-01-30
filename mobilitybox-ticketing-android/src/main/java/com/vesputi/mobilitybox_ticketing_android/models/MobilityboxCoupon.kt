@@ -18,6 +18,7 @@ class MobilityboxCoupon(
     var area: MobilityboxArea,
     var activated: Boolean,
     var environment: String,
+    var subscription: MobilityboxSubscription?,
     var createdAt: Date? = Date()
 ): Parcelable {
 

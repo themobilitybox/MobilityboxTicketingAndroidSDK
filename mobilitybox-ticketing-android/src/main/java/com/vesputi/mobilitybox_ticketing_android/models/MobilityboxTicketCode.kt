@@ -37,7 +37,6 @@ class MobilityboxTicketCode(val ticketId: String, val couponId: String): Parcela
                     val gson = GsonBuilder().create()
                     Log.d("DEBUG_TICKET_BODY", body.toString())
                     var ticket = gson.fromJson(body, MobilityboxTicket::class.java)
-                    ticket.couponId = couponId
                     ticket.createdAt = Date()
                     completion(ticket)
                 }

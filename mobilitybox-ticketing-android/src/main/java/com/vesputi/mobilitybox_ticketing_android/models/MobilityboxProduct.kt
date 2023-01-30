@@ -8,14 +8,19 @@ import kotlinx.parcelize.RawValue
 @Parcelize
 data class MobilityboxProduct(
     var id: String,
+    val recommended_successor_is: String?,
+    val recommended_successor_of: String?,
     var local_ticket_name: String,
     var local_validity_description: String,
     var ticket_type: String,
     var customer_type: String,
     var price_in_cents: Int,
     var currency: String,
-    var validity_in_minutes: Int,
+    val duration_definition: String,
+    val duration_in_minutes: Int?,
+    var validity_in_minutes: Int?,
     var area_id: String,
+    var is_subscription: Boolean,
     var identification_medium_schema: @RawValue JsonElement
 ): Parcelable {
     fun getTitle(): (String) {
@@ -25,8 +30,17 @@ data class MobilityboxProduct(
     }
 
     fun getDescription(): (String) {
-        val validity_time_string = if (validity_in_minutes > 90) "${validity_in_minutes / 60} Stunden" else "${validity_in_minutes} Minuten"
-        return "Dieses Ticket ist nach dem Entwerten ${validity_time_string} gültig."
+        when (duration_definition) {
+            "duration_in_minutes" -> {
+                return if (duration_in_minutes != null) {
+                    val validity_time_string = if (duration_in_minutes > 90) "${duration_in_minutes / 60} Stunden" else "${duration_in_minutes} Minuten"
+                    "Dieses Ticket ist nach dem Entwerten ${validity_time_string} gültig."
+                } else {
+                    ""
+                }
+            }
+            else -> return ""
+        }
     }
 }
 
@@ -40,7 +54,10 @@ data class MobilityboxOrderedProduct(
     val customer_type: String,
     val price_in_cents: Int,
     val currency: String,
-    val validity_in_minutes: Int
+    val duration_definition: String,
+    val duration_in_minutes: Int?,
+    val validity_in_minutes: Int,
+    val is_subscription: Boolean,
 ) : Parcelable {
     fun getTitle(): (String) {
         val customer_type_string = if (customer_type == "adult") " Erwachsener" else ( if (customer_type == "child") " Kind" else "")
