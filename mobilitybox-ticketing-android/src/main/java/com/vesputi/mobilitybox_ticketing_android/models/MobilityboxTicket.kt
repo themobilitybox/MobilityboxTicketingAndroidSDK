@@ -1,6 +1,7 @@
 package com.vesputi.mobilitybox_ticketing_android.models
 
 import android.os.Parcelable
+import android.util.Log
 import com.google.gson.JsonElement
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.RawValue
@@ -59,6 +60,22 @@ class MobilityboxTicket(
             MobilityboxTicketValidity.VALID
         }
     }
+
+    fun reactivate(completion: (ticketCode: MobilityboxTicketCode) -> (Unit), failure: ((error: MobilityboxError) -> Unit)? = null) {
+        if (product != null && product.is_subscription && coupon_reactivation_key != null && wasReactivated != null && !wasReactivated!!) {
+            MobilityboxCouponCode(coupon_id).fetchCoupon({ fetchedCoupon ->
+                if (fetchedCoupon.subscription != null && fetchedCoupon.subscription!!.coupon_reactivatable) {
+                    fetchedCoupon.reactivate(coupon_reactivation_key) { fetchedTicketCode ->
+                        Log.d("TICKET_REACTIVATION", "reactivated ticket id: ${fetchedTicketCode.ticketId}")
+                        completion(fetchedTicketCode)
+                        wasReactivated = true
+                    }
+                }
+            })
+        }
+    }
+}
+
 
 enum class MobilityboxTicketValidity {
     VALID, FUTURE, EXPIRED

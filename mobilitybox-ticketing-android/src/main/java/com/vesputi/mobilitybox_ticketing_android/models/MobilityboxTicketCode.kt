@@ -38,6 +38,7 @@ class MobilityboxTicketCode(val ticketId: String, val couponId: String): Parcela
                     Log.d("DEBUG_TICKET_BODY", body.toString())
                     var ticket = gson.fromJson(body, MobilityboxTicket::class.java)
                     ticket.createdAt = Date()
+                    ticket.wasReactivated = false
                     completion(ticket)
                 }
             }
