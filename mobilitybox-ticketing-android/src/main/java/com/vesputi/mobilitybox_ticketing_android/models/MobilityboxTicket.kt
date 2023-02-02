@@ -31,14 +31,37 @@ class MobilityboxTicket(
     fun getDescription(): (String) {
         var parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
         var formatter = SimpleDateFormat("dd. MMMM, HH:mm")
-        return "gültig bis: ${formatter.format(parser.parse(valid_until))} Uhr"
+
+        return when (validity()) {
+            MobilityboxTicketValidity.VALID -> {
+                "gültig bis: ${formatter.format(parser.parse(valid_until))} Uhr"
+            }
+            MobilityboxTicketValidity.FUTURE -> {
+                "gültig ab: ${formatter.format(parser.parse(valid_from))} Uhr"
+            }
+            MobilityboxTicketValidity.EXPIRED -> {
+                "Ticket ist abgelaufen."
+            }
+        }
     }
 
-    fun isValid(): (Boolean) {
+
+
+    fun validity(): (MobilityboxTicketValidity) {
         var parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+        var validFromTime = parser.parse(valid_from)
         var validUntilTime = parser.parse(valid_until)
-        return validUntilTime.time >= System.currentTimeMillis()
+        return if (validUntilTime.time < System.currentTimeMillis()) {
+            MobilityboxTicketValidity.EXPIRED
+        } else if (validFromTime.time > System.currentTimeMillis()) {
+            MobilityboxTicketValidity.FUTURE
+        } else {
+            MobilityboxTicketValidity.VALID
+        }
     }
+
+enum class MobilityboxTicketValidity {
+    VALID, FUTURE, EXPIRED
 }
 
 @Parcelize
