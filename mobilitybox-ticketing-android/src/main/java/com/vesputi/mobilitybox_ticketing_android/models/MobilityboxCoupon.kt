@@ -3,12 +3,15 @@ package com.vesputi.mobilitybox_ticketing_android.models
 import android.os.Parcelable
 import android.util.Log
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonObject
+import com.google.gson.internal.bind.util.ISO8601Utils
 import kotlinx.parcelize.Parcelize
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import okio.IOException
 import java.net.URL
+import java.text.SimpleDateFormat
 import java.util.Date
 
 @Parcelize
@@ -49,14 +52,35 @@ class MobilityboxCoupon(
             }
         })
     }
+    @JvmOverloads
+    fun activate(identificationMedium: MobilityboxIdentificationMedium, completion: (MobilityboxTicketCode) -> (Unit), activationStartDateTime: Date? = null) {
+        val bodyJSON = if (activationStartDateTime != null) {
+            val gson = GsonBuilder().create()
+            var identificationMedium = gson.fromJson(identificationMedium.identificationMediumJson, JsonObject::class.java)
+            var body = JsonObject()
+            var formattedActivationStartDateTime = ISO8601Utils.format(activationStartDateTime).toString()
+            body.addProperty("activation_start_datetime", formattedActivationStartDateTime)
+            body.add("identification_medium", identificationMedium.get("identification_medium"))
+            gson.toJson(body)
+        } else {
+            identificationMedium.identificationMediumJson
+        }
+        activateCall(bodyJSON, completion)
+    }
 
-    fun activate(identificationMedium: MobilityboxIdentificationMedium, completion: (MobilityboxTicketCode) -> (Unit)) {
+    fun reactivate(reactivation_key: String, completion: (MobilityboxTicketCode) -> (Unit)) {
+        val body = mapOf("reactivation_key" to reactivation_key)
+        val gson = GsonBuilder().create()
+        val bodyJSON = gson.toJson(body)
+        activateCall(bodyJSON, completion)
+    }
+
+    private fun activateCall(bodyJSON: String, completion: (MobilityboxTicketCode) -> (Unit)) {
         val url = URL("${MobilityboxApi.apiUrl}/ticketing/coupons/${this.id}/activate.json")
-        val body = identificationMedium.identificationMediumJson
         Log.d("DEBUG_ACTIVATE_URL", url.toString())
         val request = Request.Builder()
             .url(url)
-            .post(body.toRequestBody("application/json".toMediaType()))
+            .post(bodyJSON.toRequestBody("application/json".toMediaType()))
             .build()
         val client = OkHttpClient()
 
