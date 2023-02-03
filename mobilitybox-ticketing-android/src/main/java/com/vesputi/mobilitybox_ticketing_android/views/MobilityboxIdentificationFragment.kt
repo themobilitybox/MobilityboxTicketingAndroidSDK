@@ -83,6 +83,14 @@ class MobilityboxIdentificationFragment : Fragment() {
                         })
                     """, null)
 
+                    view?.evaluateJavascript("""
+                        Array.from(document.getElementsByTagName('input')).forEach(function(input){
+                            input.addEventListener('focus', function(e){
+                                window.Android.focus()
+                            })
+                        })
+                    """, null)
+
 
                     super.onPageFinished(view, url)
                 }
@@ -160,6 +168,12 @@ class MobilityboxIdentificationFragment : Fragment() {
         fun closeView() {
             Log.d("DEBUG_closeView", "CLOSE")
             (parentFragment as MobilityboxBottomSheetFragment).close()
+        }
+
+        @JavascriptInterface
+        fun focus() {
+            Log.d("DEBUG_focus", "FOCUS")
+            (parentFragment as MobilityboxBottomSheetFragment).expandBottomSheetCallback()
         }
 
         @JavascriptInterface

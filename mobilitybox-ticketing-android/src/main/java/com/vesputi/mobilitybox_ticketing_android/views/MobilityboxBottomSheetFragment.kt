@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.os.bundleOf
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.vesputi.mobilitybox_ticketing_android.R
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.gson.internal.bind.util.ISO8601Utils
@@ -68,6 +70,14 @@ class MobilityboxBottomSheetFragment : BottomSheetDialogFragment() {
 
     fun close() {
         dismiss()
+    }
+
+    fun expandBottomSheetCallback() {
+        expandBottomSheet()
+    }
+
+    fun expandBottomSheet() {
+        (dialog as BottomSheetDialog).behavior.state = BottomSheetBehavior.STATE_EXPANDED
     }
 
     companion object {
