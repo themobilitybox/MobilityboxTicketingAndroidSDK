@@ -18,20 +18,28 @@ import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
 import com.vesputi.mobilitybox_ticketing_android.R
 import com.vesputi.mobilitybox_ticketing_android.models.Mobilitybox
-import com.vesputi.mobilitybox_ticketing_android.views.MobilityboxBottomSheetFragment
 import com.google.gson.GsonBuilder
+import com.google.gson.internal.bind.util.ISO8601Utils
 import com.vesputi.mobilitybox_ticketing_android.models.MobilityboxCoupon
 import com.vesputi.mobilitybox_ticketing_android.models.MobilityboxIdentificationMedium
 import com.vesputi.mobilitybox_ticketing_android.models.MobilityboxTicketCode
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MobilityboxIdentificationFragment : Fragment() {
     lateinit var identificationView: WebView
     private var coupon: MobilityboxCoupon? = null
+    private var activationStartDateTime: Date? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             coupon = it.get("coupon") as MobilityboxCoupon?
+            val activationStartDateTimeString = it.get("activationStartDateTime") as String?
+            if (activationStartDateTimeString != null) {
+                var parser = SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'")
+                activationStartDateTime = parser.parse(activationStartDateTimeString)
+            }
         }
     }
 
@@ -122,10 +130,13 @@ class MobilityboxIdentificationFragment : Fragment() {
     }
 
     companion object {
-        @JvmStatic
-        fun newInstance(coupon: MobilityboxCoupon) = MobilityboxIdentificationFragment().apply {
+        @JvmStatic @JvmOverloads
+        fun newInstance(coupon: MobilityboxCoupon, activationStartDateTime: Date? = null) = MobilityboxIdentificationFragment().apply {
             arguments = Bundle().apply {
                 putParcelable("coupon", coupon)
+                if (activationStartDateTime != null) {
+                    putString("activationStartDateTime", ISO8601Utils.format(activationStartDateTime).toString())
+                }
             }
         }
     }
@@ -141,7 +152,7 @@ class MobilityboxIdentificationFragment : Fragment() {
         fun activateCoupon(data: String) {
             Log.d("DEBUG_activeCoupon", data)
             if (coupon != null) {
-                coupon?.activate(MobilityboxIdentificationMedium(data), ::activateCouponCompletion)
+                coupon?.activate(MobilityboxIdentificationMedium(data), ::activateCouponCompletion, activationStartDateTime)
             }
         }
 
