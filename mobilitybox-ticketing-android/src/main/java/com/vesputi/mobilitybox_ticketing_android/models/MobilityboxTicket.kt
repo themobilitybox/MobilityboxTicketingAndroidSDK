@@ -30,7 +30,7 @@ class MobilityboxTicket(
     }
 
     fun getDescription(): (String) {
-        var parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+        var parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX")
         var formatter = SimpleDateFormat("dd. MMMM, HH:mm")
 
         return when (validity()) {
@@ -49,7 +49,7 @@ class MobilityboxTicket(
 
 
     fun validity(): (MobilityboxTicketValidity) {
-        var parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+        var parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX")
         var validFromTime = parser.parse(valid_from)
         var validUntilTime = parser.parse(valid_until)
         return if (validUntilTime.time < System.currentTimeMillis()) {

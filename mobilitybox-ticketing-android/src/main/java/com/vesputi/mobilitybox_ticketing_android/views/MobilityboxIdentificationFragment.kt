@@ -37,7 +37,7 @@ class MobilityboxIdentificationFragment : Fragment() {
             coupon = it.get("coupon") as MobilityboxCoupon?
             val activationStartDateTimeString = it.get("activationStartDateTime") as String?
             if (activationStartDateTimeString != null) {
-                var parser = SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'")
+                var parser = SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ssX")
                 activationStartDateTime = parser.parse(activationStartDateTimeString)
             }
         }
