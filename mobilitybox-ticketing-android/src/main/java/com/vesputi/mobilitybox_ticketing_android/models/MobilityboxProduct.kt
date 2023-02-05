@@ -34,7 +34,7 @@ data class MobilityboxProduct(
             "duration_in_minutes" -> {
                 return if (duration_in_minutes != null) {
                     val validity_time_string = if (duration_in_minutes > 90) "${duration_in_minutes / 60} Stunden" else "${duration_in_minutes} Minuten"
-                    "Dieses Ticket ist nach dem Entwerten ${validity_time_string} gültig."
+                    "Dieses Ticket ist nach dem Aktivieren ${validity_time_string} gültig."
                 } else {
                     ""
                 }
