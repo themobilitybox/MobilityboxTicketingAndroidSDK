@@ -17,13 +17,10 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
 import com.vesputi.mobilitybox_ticketing_android.R
-import com.vesputi.mobilitybox_ticketing_android.models.Mobilitybox
 import com.google.gson.GsonBuilder
 import com.google.gson.internal.bind.util.ISO8601Utils
-import com.vesputi.mobilitybox_ticketing_android.models.MobilityboxCoupon
-import com.vesputi.mobilitybox_ticketing_android.models.MobilityboxIdentificationMedium
-import com.vesputi.mobilitybox_ticketing_android.models.MobilityboxTicketCode
-import java.text.SimpleDateFormat
+import com.vesputi.mobilitybox_ticketing_android.models.*
+import java.text.ParsePosition
 import java.util.*
 
 class MobilityboxIdentificationFragment : Fragment() {
@@ -37,8 +34,7 @@ class MobilityboxIdentificationFragment : Fragment() {
             coupon = it.get("coupon") as MobilityboxCoupon?
             val activationStartDateTimeString = it.get("activationStartDateTime") as String?
             if (activationStartDateTimeString != null) {
-                var parser = SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ssX")
-                activationStartDateTime = parser.parse(activationStartDateTimeString)
+                activationStartDateTime = ISO8601Utils.parse(activationStartDateTimeString, ParsePosition(0))
             }
         }
     }
@@ -154,13 +150,23 @@ class MobilityboxIdentificationFragment : Fragment() {
         (parentFragment as MobilityboxBottomSheetFragment).activateCouponCallback(ticketCode)
     }
 
+    fun activateCouponFailure(mobilityboxError: MobilityboxError) {
+        Log.e("IDENTICATION_VIEW", "Error while activation coupon: ${mobilityboxError.toString()}")
+        (parentFragment as MobilityboxBottomSheetFragment).activateCouponFailure()
+    }
+
     private inner class IdentificationWebViewEventHandler(private val mContext: Context) {
 
         @JavascriptInterface
         fun activateCoupon(data: String) {
             Log.d("DEBUG_activeCoupon", data)
             if (coupon != null) {
-                coupon?.activate(MobilityboxIdentificationMedium(data), ::activateCouponCompletion, activationStartDateTime)
+                coupon?.activate(
+                    MobilityboxIdentificationMedium(data),
+                    ::activateCouponCompletion,
+                    activationStartDateTime,
+                    ::activateCouponFailure
+                )
             }
         }
 

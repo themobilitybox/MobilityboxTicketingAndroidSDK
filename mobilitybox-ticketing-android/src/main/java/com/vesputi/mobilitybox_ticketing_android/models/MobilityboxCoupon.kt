@@ -57,7 +57,7 @@ class MobilityboxCoupon(
         })
     }
     @JvmOverloads
-    fun activate(identificationMedium: MobilityboxIdentificationMedium, completion: (MobilityboxTicketCode) -> (Unit), activationStartDateTime: Date? = null) {
+    fun activate(identificationMedium: MobilityboxIdentificationMedium, completion: (MobilityboxTicketCode) -> (Unit), activationStartDateTime: Date? = null, failure: ((error: MobilityboxError) -> Unit)? = null) {
         val bodyJSON = if (activationStartDateTime != null) {
             val gson = GsonBuilder().create()
             var identificationMedium = gson.fromJson(identificationMedium.identificationMediumJson, JsonObject::class.java)
@@ -71,17 +71,17 @@ class MobilityboxCoupon(
         } else {
             identificationMedium.identificationMediumJson
         }
-        activateCall(bodyJSON, completion)
+        activateCall(bodyJSON, completion, failure)
     }
 
-    fun reactivate(reactivation_key: String, completion: (MobilityboxTicketCode) -> (Unit)) {
+    fun reactivate(reactivation_key: String, completion: (MobilityboxTicketCode) -> (Unit), failure: ((error: MobilityboxError) -> Unit)? = null) {
         val body = mapOf("reactivation_key" to reactivation_key)
         val gson = GsonBuilder().create()
         val bodyJSON = gson.toJson(body)
-        activateCall(bodyJSON, completion)
+        activateCall(bodyJSON, completion, failure)
     }
 
-    private fun activateCall(bodyJSON: String, completion: (MobilityboxTicketCode) -> (Unit)) {
+    private fun activateCall(bodyJSON: String, completion: (MobilityboxTicketCode) -> (Unit), failure: ((error: MobilityboxError) -> Unit)? = null) {
         val url = URL("${MobilityboxApi.apiUrl}/ticketing/coupons/${this.id}/activate.json")
         Log.d("DEBUG_ACTIVATE_URL", url.toString())
         val request = Request.Builder()
@@ -93,14 +93,23 @@ class MobilityboxCoupon(
         client.newCall(request).enqueue(object: Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Log.e("ERROR_ACTIVATE_COUPON", "Error activating Coupon")
+                if (failure != null) {
+                    failure(MobilityboxError.UNKOWN)
+                }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 val body = response?.body?.string()
-                val gson = GsonBuilder().create()
-                Log.d("DEBUG_TICKET_CODE_BODY", body.toString())
-                val data = gson.fromJson(body, ActivateCouponResponse::class.java)
-                completion(MobilityboxTicketCode(data.ticket_id, id))
+                if (response.code != 201) {
+                    if (failure != null) {
+                        failure(MobilityboxError.UNKOWN)
+                    }
+                } else {
+                    val gson = GsonBuilder().create()
+                    Log.d("DEBUG_TICKET_CODE_BODY", body.toString())
+                    val data = gson.fromJson(body, ActivateCouponResponse::class.java)
+                    completion(MobilityboxTicketCode(data.ticket_id, id))
+                }
             }
         })
     }

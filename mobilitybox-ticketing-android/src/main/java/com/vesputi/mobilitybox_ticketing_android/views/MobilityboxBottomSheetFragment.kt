@@ -68,6 +68,10 @@ class MobilityboxBottomSheetFragment : BottomSheetDialogFragment() {
         dismiss()
     }
 
+    fun activateCouponFailure() {
+        activity?.supportFragmentManager?.setFragmentResult("activateCouponFailure", bundleOf())
+    }
+
     fun close() {
         dismiss()
     }

@@ -41,5 +41,5 @@ object MobilityboxApi {
 
 
 enum class MobilityboxError {
-    UNKOWN, RETRY_LATER
+    UNKOWN, RETRY_LATER, NOT_REACTIVATABLE
 }

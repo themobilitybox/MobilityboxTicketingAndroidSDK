@@ -65,13 +65,21 @@ class MobilityboxTicket(
         if (product != null && product.is_subscription && coupon_reactivation_key != null && wasReactivated != null && !wasReactivated!!) {
             MobilityboxCouponCode(coupon_id).fetchCoupon({ fetchedCoupon ->
                 if (fetchedCoupon.subscription != null && fetchedCoupon.subscription!!.coupon_reactivatable) {
-                    fetchedCoupon.reactivate(coupon_reactivation_key) { fetchedTicketCode ->
+                    fetchedCoupon.reactivate(coupon_reactivation_key, { fetchedTicketCode ->
                         Log.d("TICKET_REACTIVATION", "reactivated ticket id: ${fetchedTicketCode.ticketId}")
                         completion(fetchedTicketCode)
                         wasReactivated = true
+                    }) { mobilityboxError ->
+                        if (failure != null) { failure(mobilityboxError) }
                     }
+                } else {
+                    if (failure != null) { failure(MobilityboxError.NOT_REACTIVATABLE) }
                 }
-            })
+            }) { mobilityboxError ->
+                if (failure != null) { failure(mobilityboxError) }
+            }
+        } else {
+            if (failure != null) { failure(MobilityboxError.NOT_REACTIVATABLE) }
         }
     }
 }
