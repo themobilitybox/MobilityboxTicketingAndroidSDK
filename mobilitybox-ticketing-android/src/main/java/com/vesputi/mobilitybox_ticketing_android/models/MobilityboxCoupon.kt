@@ -11,12 +11,13 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import okio.IOException
 import java.net.URL
-import java.text.SimpleDateFormat
 import java.util.Date
 
 @Parcelize
 class MobilityboxCoupon(
     val id: String,
+    var original_coupon_id: String?,
+    var restored_coupon_id: String?,
     var product: MobilityboxProduct,
     var area: MobilityboxArea,
     var activated: Boolean,
@@ -47,6 +48,9 @@ class MobilityboxCoupon(
                     product = updatedCoupon.product
                     area = updatedCoupon.area
                     activated = updatedCoupon.activated
+                    original_coupon_id = updatedCoupon.original_coupon_id
+                    restored_coupon_id = updatedCoupon.restored_coupon_id
+                    subscription = updatedCoupon.subscription
                     completion()
                 }
             }
@@ -58,8 +62,10 @@ class MobilityboxCoupon(
             val gson = GsonBuilder().create()
             var identificationMedium = gson.fromJson(identificationMedium.identificationMediumJson, JsonObject::class.java)
             var body = JsonObject()
-            var formattedActivationStartDateTime = ISO8601Utils.format(activationStartDateTime).toString()
-            body.addProperty("activation_start_datetime", formattedActivationStartDateTime)
+            if (original_coupon_id == null) {
+                var formattedActivationStartDateTime = ISO8601Utils.format(activationStartDateTime).toString()
+                body.addProperty("activation_start_datetime", formattedActivationStartDateTime)
+            }
             body.add("identification_medium", identificationMedium.get("identification_medium"))
             gson.toJson(body)
         } else {
