@@ -14,6 +14,7 @@ import com.google.gson.internal.bind.util.ISO8601Utils
 import com.vesputi.mobilitybox_ticketing_android.models.MobilityboxCoupon
 import com.vesputi.mobilitybox_ticketing_android.models.MobilityboxTicket
 import com.vesputi.mobilitybox_ticketing_android.models.MobilityboxTicketCode
+import java.text.ParsePosition
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -32,8 +33,7 @@ class MobilityboxBottomSheetFragment : BottomSheetDialogFragment() {
 
             val activationStartDateTimeString = it.get("activationStartDateTime") as String?
             if (activationStartDateTimeString != null) {
-                var parser = SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ssX")
-                activationStartDateTime = parser.parse(activationStartDateTimeString)
+                activationStartDateTime = ISO8601Utils.parse(activationStartDateTimeString, ParsePosition(0))
             }
         }
     }

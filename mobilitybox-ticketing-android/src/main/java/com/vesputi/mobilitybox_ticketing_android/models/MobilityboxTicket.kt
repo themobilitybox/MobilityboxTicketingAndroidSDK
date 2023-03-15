@@ -3,8 +3,10 @@ package com.vesputi.mobilitybox_ticketing_android.models
 import android.os.Parcelable
 import android.util.Log
 import com.google.gson.JsonElement
+import com.google.gson.internal.bind.util.ISO8601Utils
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.RawValue
+import java.text.ParsePosition
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -30,15 +32,14 @@ class MobilityboxTicket(
     }
 
     fun getDescription(): (String) {
-        var parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX")
         var formatter = SimpleDateFormat("dd. MMMM, HH:mm")
 
         return when (validity()) {
             MobilityboxTicketValidity.VALID -> {
-                "gültig bis: ${formatter.format(parser.parse(valid_until))} Uhr"
+                "gültig bis: ${formatter.format(ISO8601Utils.parse(valid_until, ParsePosition(0)))} Uhr"
             }
             MobilityboxTicketValidity.FUTURE -> {
-                "gültig ab: ${formatter.format(parser.parse(valid_from))} Uhr"
+                "gültig ab: ${formatter.format(ISO8601Utils.parse(valid_from, ParsePosition(0)))} Uhr"
             }
             MobilityboxTicketValidity.EXPIRED -> {
                 "Ticket ist abgelaufen."
@@ -49,9 +50,8 @@ class MobilityboxTicket(
 
 
     fun validity(): (MobilityboxTicketValidity) {
-        var parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX")
-        var validFromTime = parser.parse(valid_from)
-        var validUntilTime = parser.parse(valid_until)
+        var validFromTime = ISO8601Utils.parse(valid_from, ParsePosition(0))
+        var validUntilTime = ISO8601Utils.parse(valid_until, ParsePosition(0))
         return if (validUntilTime.time < System.currentTimeMillis()) {
             MobilityboxTicketValidity.EXPIRED
         } else if (validFromTime.time > System.currentTimeMillis()) {
