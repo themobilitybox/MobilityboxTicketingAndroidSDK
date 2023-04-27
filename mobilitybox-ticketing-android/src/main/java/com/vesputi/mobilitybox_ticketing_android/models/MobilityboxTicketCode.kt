@@ -32,7 +32,7 @@ class MobilityboxTicketCode(val ticketId: String, val couponId: String? = null):
                     if (failure != null) {
                         failure(MobilityboxError.RETRY_LATER)
                     }
-                } else {
+                } else if (response.code == 200) {
                     val body = response?.body?.string()
                     val gson = GsonBuilder().create()
                     Log.d("DEBUG_TICKET_BODY", body.toString())
@@ -40,6 +40,10 @@ class MobilityboxTicketCode(val ticketId: String, val couponId: String? = null):
                     ticket.createdAt = Date()
                     ticket.wasReactivated = false
                     completion(ticket)
+                } else {
+                    if (failure != null) {
+                        failure(MobilityboxError.UNKOWN)
+                    }
                 }
             }
         })
