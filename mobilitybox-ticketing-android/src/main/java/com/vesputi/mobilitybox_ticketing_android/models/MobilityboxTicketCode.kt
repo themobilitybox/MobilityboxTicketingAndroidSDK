@@ -11,7 +11,7 @@ import java.net.URL
 import java.util.*
 
 @Parcelize
-class MobilityboxTicketCode(val ticketId: String, val couponId: String): Parcelable {
+class MobilityboxTicketCode(val ticketId: String, val couponId: String? = null): Parcelable {
 
     fun fetchTicket(completion: (coupon: MobilityboxTicket) -> (Unit), failure: ((error: MobilityboxError) -> (Unit))? = null) {
         val url = URL("${MobilityboxApi.apiUrl}/ticketing/tickets/${this.ticketId}.json")

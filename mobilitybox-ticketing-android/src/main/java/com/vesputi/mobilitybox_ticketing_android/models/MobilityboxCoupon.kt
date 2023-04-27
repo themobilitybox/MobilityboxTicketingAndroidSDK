@@ -108,7 +108,7 @@ class MobilityboxCoupon(
                     val gson = GsonBuilder().create()
                     Log.d("DEBUG_TICKET_CODE_BODY", body.toString())
                     val data = gson.fromJson(body, ActivateCouponResponse::class.java)
-                    completion(MobilityboxTicketCode(data.ticket_id, id))
+                    completion(MobilityboxTicketCode(data.ticket_id))
                 }
             }
         })
