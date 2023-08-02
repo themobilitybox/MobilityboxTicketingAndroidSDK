@@ -42,6 +42,7 @@ class MobilityboxBottomSheetFragment : BottomSheetDialogFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        expandBottomSheet()
         return inflater.inflate(R.layout.fragment_mobilitybox_bottom_sheet, container, false)
     }
 
@@ -81,6 +82,7 @@ class MobilityboxBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     fun expandBottomSheet() {
+        (dialog as BottomSheetDialog).behavior.skipCollapsed = true
         (dialog as BottomSheetDialog).behavior.state = BottomSheetBehavior.STATE_EXPANDED
     }
 
