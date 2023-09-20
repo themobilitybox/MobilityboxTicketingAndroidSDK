@@ -1,5 +1,6 @@
 package com.vesputi.mobilitybox_ticketing_android.views
 
+import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -42,7 +43,6 @@ class MobilityboxBottomSheetFragment : BottomSheetDialogFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        expandBottomSheet()
         return inflater.inflate(R.layout.fragment_mobilitybox_bottom_sheet, container, false)
     }
 
@@ -64,6 +64,13 @@ class MobilityboxBottomSheetFragment : BottomSheetDialogFragment() {
         }
     }
 
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return super.onCreateDialog(savedInstanceState).apply {
+            (this as BottomSheetDialog).behavior.skipCollapsed = true
+            (this as BottomSheetDialog).behavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+    }
+
     fun activateCouponCallback(ticketCode: MobilityboxTicketCode) {
         activity?.supportFragmentManager?.setFragmentResult("activateCoupon", bundleOf("ticketCode" to ticketCode, "ticketElementId" to ticketElementId))
         dismiss()
@@ -82,8 +89,13 @@ class MobilityboxBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     fun expandBottomSheet() {
-        (dialog as BottomSheetDialog).behavior.skipCollapsed = true
-        (dialog as BottomSheetDialog).behavior.state = BottomSheetBehavior.STATE_EXPANDED
+        if (dialog != null) {
+            var bottomSheetDialog = (dialog as BottomSheetDialog)
+            if (bottomSheetDialog.behavior != null) {
+                bottomSheetDialog.behavior.skipCollapsed = true
+                bottomSheetDialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
+            }
+        }
     }
 
     companion object {
