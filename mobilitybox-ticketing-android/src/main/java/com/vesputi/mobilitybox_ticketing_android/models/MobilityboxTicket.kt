@@ -50,14 +50,18 @@ class MobilityboxTicket(
 
 
     fun validity(): (MobilityboxTicketValidity) {
-        var validFromTime = ISO8601Utils.parse(valid_from, ParsePosition(0))
-        var validUntilTime = ISO8601Utils.parse(valid_until, ParsePosition(0))
-        return if (validUntilTime.time < System.currentTimeMillis()) {
-            MobilityboxTicketValidity.EXPIRED
-        } else if (validFromTime.time > System.currentTimeMillis()) {
-            MobilityboxTicketValidity.FUTURE
+        if (valid_from == null || valid_until == null) {
+            return MobilityboxTicketValidity.EXPIRED
         } else {
-            MobilityboxTicketValidity.VALID
+            var validFromTime = ISO8601Utils.parse(valid_from, ParsePosition(0))
+            var validUntilTime = ISO8601Utils.parse(valid_until, ParsePosition(0))
+            return if (validUntilTime.time < System.currentTimeMillis()) {
+                MobilityboxTicketValidity.EXPIRED
+            } else if (validFromTime.time > System.currentTimeMillis()) {
+                MobilityboxTicketValidity.FUTURE
+            } else {
+                MobilityboxTicketValidity.VALID
+            }
         }
     }
 
@@ -90,7 +94,7 @@ enum class MobilityboxTicketValidity {
 }
 
 @Parcelize
-class MobilityboxTicketDetails(
+data class MobilityboxTicketDetails(
     val meta: MobilityboxTicketMetaDetails?,
     val properties: @RawValue JsonElement
 ) : Parcelable
