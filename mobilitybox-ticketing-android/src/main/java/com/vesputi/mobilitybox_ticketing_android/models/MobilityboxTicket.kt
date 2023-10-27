@@ -1,7 +1,9 @@
 package com.vesputi.mobilitybox_ticketing_android.models
 
+import android.os.Parcel
 import android.os.Parcelable
 import android.util.Log
+import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.internal.bind.util.ISO8601Utils
 import kotlinx.parcelize.Parcelize
@@ -93,11 +95,39 @@ enum class MobilityboxTicketValidity {
     VALID, FUTURE, EXPIRED
 }
 
-@Parcelize
 data class MobilityboxTicketDetails(
     val meta: MobilityboxTicketMetaDetails?,
-    val properties: @RawValue JsonElement
-) : Parcelable
+    val properties: JsonElement
+) : Parcelable {
+    constructor(parcel: Parcel) : this(
+        parcel.readParcelable(MobilityboxTicketMetaDetails::class.java.classLoader),
+        Gson().fromJson(parcel.readString(), JsonElement::class.java)
+    ) {
+    }
+
+    fun propertiesToString(): (String){
+        return Gson().toJson(properties)
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeParcelable(meta, flags)
+        parcel.writeString(propertiesToString())
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<MobilityboxTicketDetails> {
+        override fun createFromParcel(parcel: Parcel): MobilityboxTicketDetails {
+            return MobilityboxTicketDetails(parcel)
+        }
+
+        override fun newArray(size: Int): Array<MobilityboxTicketDetails?> {
+            return arrayOfNulls(size)
+        }
+    }
+}
 
 @Parcelize
 data class MobilityboxTicketMetaDetails(
