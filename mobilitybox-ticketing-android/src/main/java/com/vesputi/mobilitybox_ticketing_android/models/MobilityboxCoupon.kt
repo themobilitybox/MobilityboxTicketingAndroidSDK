@@ -1,8 +1,11 @@
 package com.vesputi.mobilitybox_ticketing_android.models
 
+import android.os.Parcel
 import android.os.Parcelable
 import android.util.Log
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.internal.bind.util.ISO8601Utils
 import kotlinx.parcelize.Parcelize
@@ -13,7 +16,6 @@ import okio.IOException
 import java.net.URL
 import java.util.Date
 
-@Parcelize
 class MobilityboxCoupon(
     val id: String,
     var original_coupon_id: String?,
@@ -23,8 +25,28 @@ class MobilityboxCoupon(
     var activated: Boolean,
     var environment: String,
     var subscription: MobilityboxSubscription?,
-    var createdAt: Date? = Date()
+    var createdAt: Date? = Date(),
+    var tariff_settings_valid: Boolean?,
+    var tariff_settings: JsonElement?
 ): Parcelable {
+
+    constructor(parcel: Parcel) : this(
+        parcel.readString().toString(),
+        parcel.readString(),
+        parcel.readString(),
+        parcel.readParcelable(MobilityboxProduct::class.java.classLoader)!!,
+        parcel.readParcelable(MobilityboxArea::class.java.classLoader)!!,
+        parcel.readByte() != 0.toByte(),
+        parcel.readString().toString(),
+        parcel.readParcelable(MobilityboxSubscription::class.java.classLoader),
+        Date(parcel.readLong()),
+        parcel.readValue(Boolean::class.java.classLoader) as? Boolean,
+        Gson().fromJson(parcel.readString(), JsonElement::class.java)
+    ) {
+        if (this.createdAt?.time ?: -1L == -1L) {
+            this.createdAt = null
+        }
+    }
 
     fun update(completion: () -> (Unit), failure: ((error: MobilityboxError) -> Unit)? = null) {
         val url = URL("${MobilityboxApi.apiUrl}/ticketing/coupons/${this.id}.json")
@@ -51,6 +73,9 @@ class MobilityboxCoupon(
                     original_coupon_id = updatedCoupon.original_coupon_id
                     restored_coupon_id = updatedCoupon.restored_coupon_id
                     subscription = updatedCoupon.subscription
+                    tariff_settings = updatedCoupon.tariff_settings
+                    tariff_settings_valid = updatedCoupon.tariff_settings_valid
+
                     completion()
                 }
             }
@@ -122,5 +147,37 @@ class MobilityboxCoupon(
         return "${product.getDescription()} In der folgenden Tarifzone: ${area.properties.local_zone_name}"
     }
 
+    fun tariffSettingsToString(): (String) {
+        return Gson().toJson(tariff_settings)
+    }
+
     private data class ActivateCouponResponse(val ticket_id: String)
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(id)
+        parcel.writeString(original_coupon_id)
+        parcel.writeString(restored_coupon_id)
+        parcel.writeParcelable(product, flags)
+        parcel.writeParcelable(area, flags)
+        parcel.writeByte(if (activated) 1 else 0)
+        parcel.writeString(environment)
+        parcel.writeParcelable(subscription, flags)
+        parcel.writeLong(createdAt?.time ?: -1)
+        parcel.writeValue(tariff_settings_valid)
+        parcel.writeString(tariffSettingsToString())
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<MobilityboxCoupon> {
+        override fun createFromParcel(parcel: Parcel): MobilityboxCoupon {
+            return MobilityboxCoupon(parcel)
+        }
+
+        override fun newArray(size: Int): Array<MobilityboxCoupon?> {
+            return arrayOfNulls(size)
+        }
+    }
 }

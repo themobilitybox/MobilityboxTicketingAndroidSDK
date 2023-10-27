@@ -22,7 +22,8 @@ data class MobilityboxProduct(
     var validity_in_minutes: Int?,
     var area_id: String,
     var is_subscription: Boolean,
-    var identification_medium_schema: JsonElement
+    var identification_medium_schema: JsonElement,
+    var tariff_settings_schema: JsonElement
 ): Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString().toString(),
@@ -39,6 +40,7 @@ data class MobilityboxProduct(
         parcel.readValue(Int::class.java.classLoader) as? Int,
         parcel.readString().toString(),
         parcel.readByte() != 0.toByte(),
+        Gson().fromJson(parcel.readString(), JsonElement::class.java),
         Gson().fromJson(parcel.readString(), JsonElement::class.java)
     ) {
     }
@@ -67,6 +69,10 @@ data class MobilityboxProduct(
         return Gson().toJson(identification_medium_schema)
     }
 
+    fun tariffSettingsSchemaToString(): (String){
+        return Gson().toJson(tariff_settings_schema)
+    }
+
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(id)
         parcel.writeString(recommended_successor_is)
@@ -83,6 +89,7 @@ data class MobilityboxProduct(
         parcel.writeString(area_id)
         parcel.writeByte(if (is_subscription) 1 else 0)
         parcel.writeString(identificationMediumSchemaToString())
+        parcel.writeString(tariffSettingsSchemaToString())
     }
 
     override fun describeContents(): Int {
