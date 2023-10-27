@@ -10,7 +10,7 @@ import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.RawValue
 import java.text.ParsePosition
 import java.text.SimpleDateFormat
-import java.util.Date
+import java.util.*
 
 @Parcelize
 class MobilityboxTicket(
@@ -34,7 +34,7 @@ class MobilityboxTicket(
     }
 
     fun getDescription(): (String) {
-        var formatter = SimpleDateFormat("dd. MMMM, HH:mm")
+        var formatter = SimpleDateFormat("dd. MMMM, HH:mm", Locale.GERMANY)
 
         return when (validity()) {
             MobilityboxTicketValidity.VALID -> {
