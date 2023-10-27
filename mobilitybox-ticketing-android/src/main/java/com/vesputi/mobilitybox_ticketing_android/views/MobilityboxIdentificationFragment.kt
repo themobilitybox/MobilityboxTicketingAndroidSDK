@@ -61,15 +61,17 @@ class MobilityboxIdentificationFragment : Fragment() {
             webViewClient = object : WebViewClient() {
                 override fun onPageFinished(view: WebView?, url: String?) {
                     val gson = GsonBuilder().create()
-                    val identification_medium_schema = gson.toJson(coupon!!.product.identification_medium_schema)
+                    val identificationMediumSchema = gson.toJson(coupon!!.product.identification_medium_schema)
+                    val tariffSettingsSchema = gson.toJson(coupon!!.product.tariff_settings_schema)
 
-                    view?.evaluateJavascript("window.renderIdentificationView(${identification_medium_schema})", null)
+                    view?.evaluateJavascript("window.renderIdentificationView(${identificationMediumSchema}, ${tariffSettingsSchema})", null)
 
                     view?.evaluateJavascript("""
                         document.getElementById('submit_activate_button').addEventListener('click', function(e){
                             const identification_medium = window.getIdentificationMedium()
-                            if (identification_medium != undefined) {
-                                window.Android.activateCoupon(identification_medium);
+                            const tariff_settings = window.getTariffSettings()
+                            if (identification_medium != undefined || identification_medium != null) {
+                                window.Android.activateCoupon(identification_medium, tariff_settings);
                             }
                         })
                     """, null)
@@ -158,15 +160,32 @@ class MobilityboxIdentificationFragment : Fragment() {
     private inner class IdentificationWebViewEventHandler(private val mContext: Context) {
 
         @JavascriptInterface
-        fun activateCoupon(data: String) {
-            Log.d("DEBUG_activeCoupon", data)
+        fun activateCoupon(identififcationMediumData: String?, tariffSettingsData: String?) {
+            Log.d("DEBUG_activeCoupon", "identificationMediumData: $identififcationMediumData")
+            Log.d("DEBUG_activeCoupon", "tariffSettingsData: $tariffSettingsData")
             if (coupon != null) {
-                coupon?.activate(
-                    MobilityboxIdentificationMedium(data),
-                    ::activateCouponCompletion,
-                    activationStartDateTime,
-                    ::activateCouponFailure
-                )
+                val identificationMediumAndTariffsettingsValid = (identififcationMediumData != null && tariffSettingsData != null)
+                val onlyIdentificationMediumValid = (identififcationMediumData != null && tariffSettingsData == null)
+                val onlyTariffSettingsValid = (identififcationMediumData == null && tariffSettingsData != null)
+
+                if (identificationMediumAndTariffsettingsValid) {
+                    coupon?.activate(
+                        MobilityboxIdentificationMedium(identififcationMediumData!!),
+                        MobilityboxTariffSettings(tariffSettingsData!!),
+                        ::activateCouponCompletion,
+                        activationStartDateTime,
+                        ::activateCouponFailure
+                    )
+                } else if (onlyIdentificationMediumValid) {
+                    coupon?.activate(
+                        MobilityboxIdentificationMedium(identififcationMediumData!!),
+                        ::activateCouponCompletion,
+                        activationStartDateTime,
+                        ::activateCouponFailure
+                    )
+                } else if (onlyTariffSettingsValid) {
+                    Log.d("DEBUG_activeCoupon", "should update tariff settings only")
+                }
             }
         }
 

@@ -99,6 +99,22 @@ class MobilityboxCoupon(
         activateCall(bodyJSON, completion, failure)
     }
 
+    @JvmOverloads
+    fun activate(identificationMedium: MobilityboxIdentificationMedium, tariffSettings: MobilityboxTariffSettings, completion: (MobilityboxTicketCode) -> (Unit), activationStartDateTime: Date? = null, failure: ((error: MobilityboxError) -> Unit)? = null) {
+        val gson = GsonBuilder().create()
+        var identificationMedium = gson.fromJson(identificationMedium.identificationMediumJson, JsonObject::class.java)
+        var tariffSettings = gson.fromJson(tariffSettings.tariffSettingsJson, JsonObject::class.java)
+        var body = JsonObject()
+        if (original_coupon_id == null) {
+            var formattedActivationStartDateTime = ISO8601Utils.format(activationStartDateTime).toString()
+            body.addProperty("activation_start_datetime", formattedActivationStartDateTime)
+        }
+        body.add("identification_medium", identificationMedium.get("identification_medium"))
+        body.add("tariff_settings", tariffSettings.get("tariff_settings"))
+        val bodyJSON = gson.toJson(body)
+        activateCall(bodyJSON, completion, failure)
+    }
+
     fun reactivate(reactivation_key: String, completion: (MobilityboxTicketCode) -> (Unit), failure: ((error: MobilityboxError) -> Unit)? = null) {
         val body = mapOf("reactivation_key" to reactivation_key)
         val gson = GsonBuilder().create()
