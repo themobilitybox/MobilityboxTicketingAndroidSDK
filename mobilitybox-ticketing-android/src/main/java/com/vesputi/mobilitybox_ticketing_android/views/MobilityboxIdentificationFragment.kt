@@ -68,8 +68,11 @@ class MobilityboxIdentificationFragment : Fragment() {
 
                     view?.evaluateJavascript("""
                         document.getElementById('submit_activate_button').addEventListener('click', function(e){
-                            const identification_medium = window.getIdentificationMedium()
-                            const tariff_settings = window.getTariffSettings()
+                            var identification_medium = window.getIdentificationMedium()
+                            var tariff_settings = null
+                            if (window.getTariffSettings != undefined) {
+                                tariff_settings = window.getTariffSettings()
+                            }
                             if (identification_medium != undefined || identification_medium != null) {
                                 window.Android.activateCoupon(identification_medium, tariff_settings);
                             }
