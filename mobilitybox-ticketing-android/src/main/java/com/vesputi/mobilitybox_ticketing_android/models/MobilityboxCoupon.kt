@@ -105,7 +105,7 @@ class MobilityboxCoupon(
         var identificationMedium = gson.fromJson(identificationMedium.identificationMediumJson, JsonObject::class.java)
         var tariffSettings = gson.fromJson(tariffSettings.tariffSettingsJson, JsonObject::class.java)
         var body = JsonObject()
-        if (original_coupon_id == null) {
+        if (original_coupon_id == null && activationStartDateTime != null) {
             var formattedActivationStartDateTime = ISO8601Utils.format(activationStartDateTime).toString()
             body.addProperty("activation_start_datetime", formattedActivationStartDateTime)
         }
