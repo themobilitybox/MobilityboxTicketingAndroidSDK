@@ -17,7 +17,7 @@ class MobilityboxSubscription (
     val current_subscription_cycle: MobilityboxSubscriptionCycle,
     val next_subscription_cycle: MobilityboxSubscriptionCycle?,
     val next_unordered_subscription_cycle: MobilityboxSubscriptionCycle?,
-    val subscription_cycles: ArrayList<MobilityboxSubscriptionCycle>
+    val subscription_cycles: ArrayList<MobilityboxSubscriptionCycle>?
 ) : Parcelable
 
 @Parcelize
