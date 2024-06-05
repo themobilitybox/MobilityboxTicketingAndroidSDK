@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.github.themobilitybox'
-version = '4.0.2'
+version = '6.0.0'
 
 android {
     namespace 'com.vesputi.mobilitybox_ticketing_android'
@@ -20,7 +20,7 @@ android {
         consumerProguardFiles "consumer-rules.pro"
 
         versionCode 12
-        versionName "4.0.2"
+        versionName "6.0.0"
     }
 
     buildTypes {
