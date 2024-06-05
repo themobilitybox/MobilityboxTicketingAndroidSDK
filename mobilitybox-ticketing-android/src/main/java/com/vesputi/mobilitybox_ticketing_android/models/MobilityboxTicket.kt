@@ -4,13 +4,18 @@ import android.os.Parcel
 import android.os.Parcelable
 import android.util.Log
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
 import com.google.gson.internal.bind.util.ISO8601Utils
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.RawValue
+import okhttp3.*
+import java.io.IOException
+import java.net.URL
 import java.text.ParsePosition
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 @Parcelize
 class MobilityboxTicket(
@@ -49,8 +54,6 @@ class MobilityboxTicket(
         }
     }
 
-
-
     fun validity(): (MobilityboxTicketValidity) {
         if (valid_from == null || valid_until == null) {
             return MobilityboxTicketValidity.EXPIRED
@@ -87,6 +90,90 @@ class MobilityboxTicket(
         } else {
             if (failure != null) { failure(MobilityboxError.NOT_REACTIVATABLE) }
         }
+    }
+
+    fun getAvailableRenderingOptions(completion: (availableRenderingOptions: ArrayList<String>) -> Unit, failure: ((error: MobilityboxError) -> Unit)? = null) {
+        if (this.ticket?.meta?.available_rendering_options != null) {
+            completion(this.ticket.meta.available_rendering_options)
+        } else {
+            this.fetchAvailableRenderingOptions(completion, failure)
+        }
+    }
+
+    private fun fetchAvailableRenderingOptions(completion: (availableRenderingOptions: ArrayList<String>) -> Unit, failure: ((error: MobilityboxError) -> Unit)? = null) {
+        val url = URL("${MobilityboxApi.apiUrl}/ticketing/tickets/${this.id}/available_rendering_options.json")
+        val request = Request.Builder().url(url).build()
+        val client = OkHttpClient()
+
+        client.newCall(request).enqueue(object: Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                if (failure != null) {
+                    failure(MobilityboxError.UNKOWN)
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val body = response?.body?.string()
+                if (response.code != 200) {
+                    if (failure != null) {
+                        failure(MobilityboxError.UNKOWN)
+                    }
+                } else {
+                    val gson = GsonBuilder().create()
+                    val availableRenderingOptions = gson.fromJson(body, ArrayList<String>()::class.java)
+                    completion(availableRenderingOptions)
+                }
+            }
+        })
+    }
+
+    fun getGoogleWalletPassJWT(completion: (jwt: String) -> (Unit), failure: ((error: MobilityboxError) -> Unit)? = null) {
+        this.getAvailableRenderingOptions({ availableRenderingOptions ->
+            if (availableRenderingOptions.contains("google_wallet")) {
+                this.fetchGoogleWalletPassJWT(completion, failure)
+            } else {
+                if (failure != null) {
+                    failure(MobilityboxError.GOOGLE_PASS_NOT_POSSIBLE)
+                }
+            }
+        }, { error ->
+            if (failure != null) {
+                failure(MobilityboxError.GOOGLE_PASS_NOT_AVAILABLE)
+            }
+        })
+    }
+
+    private fun fetchGoogleWalletPassJWT(completion: (jwt: String) -> (Unit), failure: ((error: MobilityboxError) -> Unit)? = null) {
+        val url = URL("${MobilityboxApi.apiUrl}/ticketing/passes/google_wallet/${this.id}.json")
+        val request = Request.Builder().url(url).build()
+        val client = OkHttpClient()
+
+        client.newCall(request).enqueue(object: Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                if (failure != null) {
+                    failure(MobilityboxError.GOOGLE_PASS_NOT_AVAILABLE)
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val body = response?.body?.string()
+                if (response.code != 200) {
+                    if (failure != null) {
+                        failure(MobilityboxError.GOOGLE_PASS_NOT_AVAILABLE)
+                    }
+                } else {
+                    if (body != null) {
+                        var jwt = body.split("/save/")[1]
+                        completion(jwt)
+                    } else {
+                        if (failure != null) {
+                            failure(MobilityboxError.GOOGLE_PASS_NOT_AVAILABLE)
+                        }
+                    }
+                }
+
+            }
+        })
     }
 }
 
@@ -133,5 +220,6 @@ data class MobilityboxTicketDetails(
 data class MobilityboxTicketMetaDetails(
     val version: String,
     val template: String,
-    val requires_engine: String
+    val requires_engine: String,
+    val available_rendering_options: ArrayList<String>?
 ) : Parcelable
