@@ -54,6 +54,14 @@ class MobilityboxTicket(
         }
     }
 
+    fun getReference(): (String) {
+        return if (this.id.matches(Regex("^mobilitybox-ticket-.{36}-[^-]+\$"))) {
+            "T-${this.id.replace(Regex("-[^-]+\$"), "").takeLast(6).uppercase()}"
+        } else {
+            "T-${this.id.takeLast(6).uppercase()}"
+        }
+    }
+
     fun validity(): (MobilityboxTicketValidity) {
         if (valid_from == null || valid_until == null) {
             return MobilityboxTicketValidity.EXPIRED

@@ -50,17 +50,42 @@
                 android:textColor="@color/black"
                 android:textSize="10dp" />
 
-            <TextView
-                android:id="@+id/addedAtText"
+
+            <LinearLayout
+                android:id="@+id/bottomTextContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="16dp"
-                android:paddingBottom="8dp"
-                android:text="hinzugefügt vor: "
-                android:textAlignment="textEnd"
-                android:textColor="@color/gray_dark"
-                android:textSize="10dp"
-                android:textStyle="italic" />
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:layout_toStartOf="@+id/fakeBarcodeImageView"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:id="@+id/referenceText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="8dp"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/gray_dark"
+                    android:textSize="10dp"
+                    android:textStyle="italic"
+                    />
+
+                <Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/addedAtText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="8dp"
+                    android:text="hinzugefügt vor: "
+                    android:textColor="@color/gray_dark"
+                    android:textSize="10dp"
+                    android:textStyle="italic" />
+            </LinearLayout>
         </LinearLayout>
 
 
@@ -78,8 +103,7 @@
 
         <TextView
             android:id="@+id/imageButtonTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"            android:layout_height="wrap_content"
             android:layout_alignLeft="@id/fakeBarcodeImageView"
             android:layout_alignRight="@id/fakeBarcodeImageView"
             android:layout_centerVertical="true"

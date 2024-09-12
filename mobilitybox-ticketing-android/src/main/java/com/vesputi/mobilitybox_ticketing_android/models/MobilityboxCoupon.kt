@@ -167,6 +167,10 @@ class MobilityboxCoupon(
         return Gson().toJson(tariff_settings)
     }
 
+    fun getReference(): (String) {
+        return "C-${this.id.takeLast(6).uppercase()}"
+    }
+
     private data class ActivateCouponResponse(val ticket_id: String)
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
