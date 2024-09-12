@@ -35,7 +35,7 @@ class MobilityboxTicket(
 ) : Parcelable {
 
     fun getTitle(): (String) {
-        return "${this.area?.properties?.city_name} - ${this.product?.getTitle()}"
+        return product?.local_ticket_name ?: "${this.area?.properties?.city_name} - ${this.product?.getTitle()?.trim()}"
     }
 
     fun getDescription(): (String) {

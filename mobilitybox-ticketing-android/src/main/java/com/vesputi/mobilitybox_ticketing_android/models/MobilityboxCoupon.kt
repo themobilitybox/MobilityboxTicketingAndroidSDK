@@ -156,11 +156,11 @@ class MobilityboxCoupon(
     }
 
     fun getTitle(): (String) {
-        return "${this.area.properties.city_name} - ${this.product.getTitle()}"
+        return product.local_ticket_name
     }
 
     fun getDescription(): (String) {
-        return "${product.getDescription()} In der folgenden Tarifzone: ${area.properties.local_zone_name}"
+        return "${if (product.getDescription().isBlank()) "" else product.getDescription() + " "}In der folgenden Tarifzone: ${area.properties.local_zone_name}"
     }
 
     fun tariffSettingsToString(): (String) {
