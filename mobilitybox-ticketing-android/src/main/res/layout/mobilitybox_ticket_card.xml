@@ -23,8 +23,8 @@
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
 
-            android:layout_marginStart="18dp"
-            android:layout_marginEnd="18dp"
+            android:layout_marginStart="25dp"
+            android:layout_marginEnd="20dp"
             android:layout_toStartOf="@+id/fakeBarcodeImageView"
             android:orientation="vertical" >
 
@@ -32,19 +32,17 @@
                 android:id="@+id/titleTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="8dp"
                 android:paddingVertical="6dp"
                 android:text="Title"
-                android:textAlignment="center"
                 android:textColor="@color/black"
                 android:textSize="16dp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                />
 
             <TextView
                 android:id="@+id/descriptionTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="8dp"
                 android:paddingBottom="8dp"
                 android:text="Beschreibung"
                 android:textColor="@color/black"
@@ -97,13 +95,15 @@
             android:layout_alignParentEnd="true"
             android:layout_marginTop="18dp"
             android:layout_marginEnd="18dp"
+            android:alpha="0.5"
             android:gravity="center"
             app:srcCompat="@drawable/mobilitybox_fake_barcode" />
 
 
         <TextView
             android:id="@+id/imageButtonTextView"
-            android:layout_width="wrap_content"            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignLeft="@id/fakeBarcodeImageView"
             android:layout_alignRight="@id/fakeBarcodeImageView"
             android:layout_centerVertical="true"
