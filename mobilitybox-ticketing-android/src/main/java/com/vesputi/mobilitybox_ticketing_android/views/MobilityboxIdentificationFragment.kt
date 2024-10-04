@@ -27,6 +27,7 @@ class MobilityboxIdentificationFragment : Fragment() {
     lateinit var identificationView: WebView
     private var coupon: MobilityboxCoupon? = null
     private var activationStartDateTime: Date? = null
+    var activationRunning: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -153,11 +154,13 @@ class MobilityboxIdentificationFragment : Fragment() {
     fun activateCouponCompletion(ticketCode: MobilityboxTicketCode) {
         Log.d("RECEIVED_TICKET_CODE", ticketCode.ticketId)
         (parentFragment as MobilityboxBottomSheetFragment).activateCouponCallback(ticketCode)
+        activationRunning = false
     }
 
     fun activateCouponFailure(mobilityboxError: MobilityboxError) {
         Log.e("IDENTICATION_VIEW", "Error while activation coupon: ${mobilityboxError.toString()}")
         (parentFragment as MobilityboxBottomSheetFragment).activateCouponFailure()
+        activationRunning = false
     }
 
     private inner class IdentificationWebViewEventHandler(private val mContext: Context) {
@@ -166,12 +169,13 @@ class MobilityboxIdentificationFragment : Fragment() {
         fun activateCoupon(identififcationMediumData: String?, tariffSettingsData: String?) {
             Log.d("DEBUG_activeCoupon", "identificationMediumData: $identififcationMediumData")
             Log.d("DEBUG_activeCoupon", "tariffSettingsData: $tariffSettingsData")
-            if (coupon != null) {
+            if (coupon != null && !activationRunning) {
                 val identificationMediumAndTariffsettingsValid = (identififcationMediumData != null && tariffSettingsData != null)
                 val onlyIdentificationMediumValid = (identififcationMediumData != null && tariffSettingsData == null)
                 val onlyTariffSettingsValid = (identififcationMediumData == null && tariffSettingsData != null)
 
                 if (identificationMediumAndTariffsettingsValid) {
+                    activationRunning = true
                     coupon?.activate(
                         MobilityboxIdentificationMedium(identififcationMediumData!!),
                         MobilityboxTariffSettings(tariffSettingsData!!),
@@ -180,6 +184,7 @@ class MobilityboxIdentificationFragment : Fragment() {
                         ::activateCouponFailure
                     )
                 } else if (onlyIdentificationMediumValid) {
+                    activationRunning = true
                     coupon?.activate(
                         MobilityboxIdentificationMedium(identififcationMediumData!!),
                         ::activateCouponCompletion,
@@ -202,6 +207,7 @@ class MobilityboxIdentificationFragment : Fragment() {
         fun focus() {
             Log.d("DEBUG_focus", "FOCUS")
             (parentFragment as MobilityboxBottomSheetFragment).expandBottomSheetCallback()
+            (parentFragment as MobilityboxBottomSheetFragment).disableDragBottomSheetCallback()
         }
 
         @JavascriptInterface

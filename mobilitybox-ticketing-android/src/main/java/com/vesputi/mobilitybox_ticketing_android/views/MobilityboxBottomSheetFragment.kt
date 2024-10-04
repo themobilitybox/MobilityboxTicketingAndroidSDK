@@ -24,6 +24,7 @@ class MobilityboxBottomSheetFragment : BottomSheetDialogFragment() {
     private var ticket: MobilityboxTicket? = null
     private var ticketElementId: String? = null
     private var activationStartDateTime: Date? = null
+    private var identificationView: MobilityboxIdentificationFragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,8 +50,8 @@ class MobilityboxBottomSheetFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         childFragmentManager.beginTransaction().apply {
             if (coupon != null) {
-                val identificationView = MobilityboxIdentificationFragment.newInstance(coupon!!, activationStartDateTime)
-                replace(R.id.flWebViewFragment, identificationView)
+                identificationView = MobilityboxIdentificationFragment.newInstance(coupon!!, activationStartDateTime)
+                replace(R.id.flWebViewFragment, identificationView!!)
             } else if (ticket != null) {
                 val ticketInspectionView = MobilityboxTicketInspectionFragment.newInstance(ticket!!)
                 replace(R.id.flWebViewFragment, ticketInspectionView)
@@ -60,7 +61,9 @@ class MobilityboxBottomSheetFragment : BottomSheetDialogFragment() {
 
         val closeSheetButton = view.findViewById<ImageView>(R.id.closeSheetButton)
         closeSheetButton.setOnClickListener {
-            dismiss()
+            if (this.identificationView != null && !this.identificationView!!.activationRunning) {
+                close()
+            }
         }
     }
 
@@ -73,7 +76,7 @@ class MobilityboxBottomSheetFragment : BottomSheetDialogFragment() {
 
     fun activateCouponCallback(ticketCode: MobilityboxTicketCode) {
         activity?.supportFragmentManager?.setFragmentResult("activateCoupon", bundleOf("ticketCode" to ticketCode, "ticketElementId" to ticketElementId))
-        dismiss()
+        close()
     }
 
     fun activateCouponFailure() {
@@ -81,11 +84,17 @@ class MobilityboxBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     fun close() {
-        dismiss()
+        if (isAdded && !requireActivity().isFinishing) {
+            dismiss()
+        }
     }
 
     fun expandBottomSheetCallback() {
         expandBottomSheet()
+    }
+
+    fun disableDragBottomSheetCallback() {
+        disableDragBottomSheet()
     }
 
     fun expandBottomSheet() {
@@ -94,6 +103,15 @@ class MobilityboxBottomSheetFragment : BottomSheetDialogFragment() {
             if (bottomSheetDialog.behavior != null) {
                 bottomSheetDialog.behavior.skipCollapsed = true
                 bottomSheetDialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
+            }
+        }
+    }
+
+    fun disableDragBottomSheet() {
+        if (dialog != null) {
+            var bottomSheetDialog = (dialog as BottomSheetDialog)
+            if (bottomSheetDialog.behavior != null) {
+                bottomSheetDialog.behavior.isDraggable = false
             }
         }
     }
