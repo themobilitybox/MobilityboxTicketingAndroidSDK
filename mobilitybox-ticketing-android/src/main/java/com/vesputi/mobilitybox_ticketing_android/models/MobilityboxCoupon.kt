@@ -128,6 +128,24 @@ class MobilityboxCoupon(
         activateCall(bodyJSON, completion, failure)
     }
 
+    fun reactivate(reactivation_key: String, identificationMedium: MobilityboxIdentificationMedium? = null, tariffSettings: MobilityboxTariffSettings? = null, completion: (MobilityboxTicketCode) -> (Unit), failure: ((error: MobilityboxError) -> Unit)? = null) {
+        val gson = GsonBuilder().create()
+        var body = JsonObject()
+        body.addProperty("reactivation_key", reactivation_key)
+
+        if (identificationMedium != null) {
+            var identificationMedium = gson.fromJson(identificationMedium.identificationMediumJson, JsonObject::class.java)
+            body.add("identification_medium", identificationMedium.get("identification_medium"))
+        }
+        if (tariffSettings != null) {
+            var tariffSettings = gson.fromJson(tariffSettings.tariffSettingsJson, JsonObject::class.java)
+            body.add("tariff_settings", tariffSettings.get("tariff_settings"))
+        }
+
+        val bodyJSON = gson.toJson(body)
+        activateCall(bodyJSON, completion, failure)
+    }
+
     private fun activateCall(bodyJSON: String, completion: (MobilityboxTicketCode) -> (Unit), failure: ((error: MobilityboxError) -> Unit)? = null) {
         val url = URL("${MobilityboxApi.apiUrl}/ticketing/coupons/${this.id}/activate.json")
         Log.d("DEBUG_ACTIVATE_URL", url.toString())
@@ -149,7 +167,19 @@ class MobilityboxCoupon(
                 val body = response?.body?.string()
                 if (response.code != 201) {
                     if (failure != null) {
-                        failure(MobilityboxError.UNKOWN)
+                        if (response.code == 422) {
+                            val gson = GsonBuilder().create()
+                            val data = gson.fromJson(body, ActivateCouponErrorResponse::class.java)
+                            if (data.message.startsWith("identification_medium:")) {
+                                failure(MobilityboxError.IDENTIFICATION_MEDIUM_NOT_VALID)
+                            } else if (data.message.startsWith("tariff_settings:")) {
+                                failure(MobilityboxError.TARIFF_SETTINGS_NOT_VALID)
+                            } else {
+                                failure(MobilityboxError.UNKOWN)
+                            }
+                        } else {
+                            failure(MobilityboxError.UNKOWN)
+                        }
                     }
                 } else {
                     val gson = GsonBuilder().create()
