@@ -27,7 +27,9 @@ class MobilityboxCoupon(
     var subscription: MobilityboxSubscription?,
     var createdAt: Date? = Date(),
     var tariff_settings_valid: Boolean?,
-    var tariff_settings: JsonElement?
+    var tariff_settings: JsonElement?,
+    var earliest_activation_start_datetime: String?,
+    var latest_activation_start_datetime: String?
 ): Parcelable {
 
     constructor(parcel: Parcel) : this(
@@ -41,7 +43,9 @@ class MobilityboxCoupon(
         parcel.readParcelable(MobilityboxSubscription::class.java.classLoader),
         Date(parcel.readLong()),
         parcel.readValue(Boolean::class.java.classLoader) as? Boolean,
-        Gson().fromJson(parcel.readString(), JsonElement::class.java)
+        Gson().fromJson(parcel.readString(), JsonElement::class.java),
+        parcel.readString(),
+        parcel.readString()
     ) {
         if (this.createdAt?.time ?: -1L == -1L) {
             this.createdAt = null
@@ -75,6 +79,8 @@ class MobilityboxCoupon(
                     subscription = updatedCoupon.subscription
                     tariff_settings = updatedCoupon.tariff_settings
                     tariff_settings_valid = updatedCoupon.tariff_settings_valid
+                    earliest_activation_start_datetime = updatedCoupon.earliest_activation_start_datetime
+                    latest_activation_start_datetime = updatedCoupon.latest_activation_start_datetime
 
                     completion()
                 }
@@ -172,6 +178,7 @@ class MobilityboxCoupon(
     }
 
     private data class ActivateCouponResponse(val ticket_id: String)
+    private data class ActivateCouponErrorResponse(val message: String)
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(id)
@@ -185,6 +192,8 @@ class MobilityboxCoupon(
         parcel.writeLong(createdAt?.time ?: -1)
         parcel.writeValue(tariff_settings_valid)
         parcel.writeString(tariffSettingsToString())
+        parcel.writeString(earliest_activation_start_datetime)
+        parcel.writeString(latest_activation_start_datetime)
     }
 
     override fun describeContents(): Int {

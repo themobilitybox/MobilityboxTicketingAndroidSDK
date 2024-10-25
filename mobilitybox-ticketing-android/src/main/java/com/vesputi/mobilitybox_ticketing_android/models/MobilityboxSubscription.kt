@@ -23,6 +23,7 @@ class MobilityboxSubscription (
 @Parcelize
 class MobilityboxSubscriptionCycle (
     val id: String,
+    val product_id: String?,
     val valid_from: String?,
     val valid_until: String?,
     val ordered: Boolean,
