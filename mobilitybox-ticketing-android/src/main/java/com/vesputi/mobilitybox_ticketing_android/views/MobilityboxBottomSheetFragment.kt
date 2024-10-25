@@ -50,7 +50,7 @@ class MobilityboxBottomSheetFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         childFragmentManager.beginTransaction().apply {
             if (coupon != null) {
-                identificationView = MobilityboxIdentificationFragment.newInstance(coupon!!, activationStartDateTime)
+                identificationView = MobilityboxIdentificationFragment.newInstance(coupon!!, activationStartDateTime, ticket)
                 replace(R.id.flWebViewFragment, identificationView!!)
             } else if (ticket != null) {
                 val ticketInspectionView = MobilityboxTicketInspectionFragment.newInstance(ticket!!)
@@ -81,6 +81,15 @@ class MobilityboxBottomSheetFragment : BottomSheetDialogFragment() {
 
     fun activateCouponFailure() {
         activity?.supportFragmentManager?.setFragmentResult("activateCouponFailure", bundleOf())
+    }
+
+    fun reactivateTicketCompletion(ticketCode: MobilityboxTicketCode) {
+        activity?.supportFragmentManager?.setFragmentResult("reactivateTicket", bundleOf("ticketCode" to ticketCode, "ticketElementId" to ticketElementId))
+        close()
+    }
+
+    fun reactivateTicketFailure() {
+        activity?.supportFragmentManager?.setFragmentResult("reactivateTicketFailure", bundleOf())
     }
 
     fun close() {
@@ -125,6 +134,14 @@ class MobilityboxBottomSheetFragment : BottomSheetDialogFragment() {
                 if (activationStartDateTime != null) {
                     putString("activationStartDateTime", ISO8601Utils.format(activationStartDateTime).toString())
                 }
+            }
+        }
+
+        fun newInstance(coupon: MobilityboxCoupon, ticket: MobilityboxTicket, ticketElementId: String) = MobilityboxBottomSheetFragment().apply {
+            arguments = Bundle().apply {
+                putParcelable("coupon", coupon)
+                putParcelable("ticket", ticket)
+                putString("ticketElementId", ticketElementId)
             }
         }
 

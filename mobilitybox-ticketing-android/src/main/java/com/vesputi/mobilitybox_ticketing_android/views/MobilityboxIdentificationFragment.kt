@@ -18,24 +18,56 @@ import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
 import com.vesputi.mobilitybox_ticketing_android.R
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
 import com.google.gson.internal.bind.util.ISO8601Utils
 import com.vesputi.mobilitybox_ticketing_android.models.*
+import kotlinx.coroutines.suspendCancellableCoroutine
+import org.json.JSONObject
 import java.text.ParsePosition
 import java.util.*
+import java.util.concurrent.CountDownLatch
 
 class MobilityboxIdentificationFragment : Fragment() {
     lateinit var identificationView: WebView
     private var coupon: MobilityboxCoupon? = null
+    private var ticket: MobilityboxTicket? = null
+    private var product: MobilityboxProduct? = null
     private var activationStartDateTime: Date? = null
     var activationRunning: Boolean = false
+    private var pageFinished: Boolean = false
+    private var webView: WebView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             coupon = it.get("coupon") as MobilityboxCoupon?
+            ticket = it.get("ticket") as MobilityboxTicket?
             val activationStartDateTimeString = it.get("activationStartDateTime") as String?
             if (activationStartDateTimeString != null) {
                 activationStartDateTime = ISO8601Utils.parse(activationStartDateTimeString, ParsePosition(0))
+            }
+
+            if (ticket != null) {
+                val reactivatableCycle = coupon?.subscription?.subscription_cycles?.first { cycle ->
+                    cycle.ordered && !cycle.coupon_activated
+                }
+
+                if (reactivatableCycle?.product_id != null && reactivatableCycle.product_id != coupon?.product?.id) {
+                    MobilityboxProductCode(reactivatableCycle.product_id).fetchProduct({ fetchedProduct ->
+                        this.product = fetchedProduct
+                        this.activity?.runOnUiThread {
+                            loadWebView()
+                        }
+                    }) {
+                        this.product = coupon?.product
+                        this.activity?.runOnUiThread {
+                            loadWebView()
+                        }
+                    }
+                }
+            } else {
+                product = coupon?.product
             }
         }
     }
@@ -61,39 +93,11 @@ class MobilityboxIdentificationFragment : Fragment() {
             addJavascriptInterface(IdentificationWebViewEventHandler(this.context), "Android")
             webViewClient = object : WebViewClient() {
                 override fun onPageFinished(view: WebView?, url: String?) {
-                    val gson = GsonBuilder().create()
-                    val identificationMediumSchema = gson.toJson(coupon!!.product.identification_medium_schema)
-                    val tariffSettingsSchema = gson.toJson(coupon!!.product.tariff_settings_schema)
-
-                    view?.evaluateJavascript("window.renderIdentificationView(${identificationMediumSchema}, ${tariffSettingsSchema})", null)
-
-                    view?.evaluateJavascript("""
-                        document.getElementById('submit_activate_button').addEventListener('click', function(e){
-                            var identification_medium = window.getIdentificationMedium()
-                            var tariff_settings = null
-                            if (window.getTariffSettings != undefined) {
-                                tariff_settings = window.getTariffSettings()
-                            }
-                            if (identification_medium != undefined || identification_medium != null) {
-                                window.Android.activateCoupon(identification_medium, tariff_settings);
-                            }
-                        })
-                    """, null)
-                    view?.evaluateJavascript("""
-                        document.getElementById('close_identification_form_button').addEventListener('click', function(e){
-                            window.Android.closeView();
-                        })
-                    """, null)
-
-                    view?.evaluateJavascript("""
-                        Array.from(document.getElementsByTagName('input')).forEach(function(input){
-                            input.addEventListener('focus', function(e){
-                                window.Android.focus()
-                            })
-                        })
-                    """, null)
-
-
+                    webView = view
+                    if (product != null) {
+                        loadWebView()
+                    }
+                    pageFinished = true
                     super.onPageFinished(view, url)
                 }
 
@@ -139,11 +143,63 @@ class MobilityboxIdentificationFragment : Fragment() {
         }
     }
 
+    fun loadWebView() {
+        val gson = GsonBuilder().create()
+        val identificationMediumSchema = gson.toJson(product!!.identification_medium_schema)
+        val tariffSettingsSchema = gson.toJson(product!!.tariff_settings_schema)
+        var identificationMedium = "null"
+        var tariffSettings = "null"
+
+        if (ticket != null && this.ticket?.ticket?.properties != null) {
+            var properties = JSONObject(this.ticket!!.ticket!!.properties.toString())
+            identificationMedium = properties.getString("identification_medium")
+        }
+
+
+        webView?.evaluateJavascript("window.renderIdentificationView(${identificationMediumSchema}, ${tariffSettingsSchema}, ${identificationMedium}, ${tariffSettings}, true)", null)
+
+        webView?.evaluateJavascript("""
+                        document.getElementById('submit_activate_button').addEventListener('click', function(e){
+                            var identification_medium = window.getIdentificationMedium()
+                            var tariff_settings = null
+                            if (window.getTariffSettings != undefined) {
+                                tariff_settings = window.getTariffSettings()
+                            }
+                            if (identification_medium != undefined || identification_medium != null) {
+                                window.Android.activateCoupon(identification_medium, tariff_settings);
+                            }
+                        })
+                    """, null)
+        webView?.evaluateJavascript("""
+                        document.getElementById('close_identification_form_button').addEventListener('click', function(e){
+                            window.Android.closeView();
+                        })
+                    """, null)
+
+        webView?.evaluateJavascript("""
+                        Array.from(document.getElementsByTagName('input')).forEach(function(input){
+                            input.addEventListener('focus', function(e){
+                                window.Android.focus()
+                            })
+                        })
+                    """, null)
+    }
+
     companion object {
         @JvmStatic @JvmOverloads
         fun newInstance(coupon: MobilityboxCoupon, activationStartDateTime: Date? = null) = MobilityboxIdentificationFragment().apply {
             arguments = Bundle().apply {
                 putParcelable("coupon", coupon)
+                if (activationStartDateTime != null) {
+                    putString("activationStartDateTime", ISO8601Utils.format(activationStartDateTime).toString())
+                }
+            }
+        }
+
+        fun newInstance(coupon: MobilityboxCoupon, activationStartDateTime: Date? = null, ticket: MobilityboxTicket? = null) = MobilityboxIdentificationFragment().apply {
+            arguments = Bundle().apply {
+                putParcelable("coupon", coupon)
+                putParcelable("ticket", ticket)
                 if (activationStartDateTime != null) {
                     putString("activationStartDateTime", ISO8601Utils.format(activationStartDateTime).toString())
                 }
@@ -163,6 +219,18 @@ class MobilityboxIdentificationFragment : Fragment() {
         activationRunning = false
     }
 
+    fun reactivateTicketCompletion(ticketCode: MobilityboxTicketCode) {
+        Log.d("RECEIVED_TICKET_CODE", ticketCode.ticketId)
+        (parentFragment as MobilityboxBottomSheetFragment).reactivateTicketCompletion(ticketCode)
+        activationRunning = false
+    }
+
+    fun reactivateTicketFailure(mobilityboxError: MobilityboxError) {
+        Log.e("IDENTICATION_VIEW", "Error while reactivate coupon: ${mobilityboxError.toString()}")
+        (parentFragment as MobilityboxBottomSheetFragment).reactivateTicketFailure()
+        activationRunning = false
+    }
+
     private inner class IdentificationWebViewEventHandler(private val mContext: Context) {
 
         @JavascriptInterface
@@ -176,21 +244,42 @@ class MobilityboxIdentificationFragment : Fragment() {
 
                 if (identificationMediumAndTariffsettingsValid) {
                     activationRunning = true
-                    coupon?.activate(
-                        MobilityboxIdentificationMedium(identififcationMediumData!!),
-                        MobilityboxTariffSettings(tariffSettingsData!!),
-                        ::activateCouponCompletion,
-                        activationStartDateTime,
-                        ::activateCouponFailure
-                    )
+
+                    if (ticket != null) {
+                        coupon?.reactivate(
+                            ticket?.coupon_reactivation_key ?: "",
+                            MobilityboxIdentificationMedium(identififcationMediumData!!),
+                            MobilityboxTariffSettings(tariffSettingsData!!),
+                            ::reactivateTicketCompletion,
+                            ::reactivateTicketFailure
+                        )
+                    } else {
+                        coupon?.activate(
+                            MobilityboxIdentificationMedium(identififcationMediumData!!),
+                            MobilityboxTariffSettings(tariffSettingsData!!),
+                            ::activateCouponCompletion,
+                            activationStartDateTime,
+                            ::activateCouponFailure
+                        )
+                    }
                 } else if (onlyIdentificationMediumValid) {
                     activationRunning = true
-                    coupon?.activate(
-                        MobilityboxIdentificationMedium(identififcationMediumData!!),
-                        ::activateCouponCompletion,
-                        activationStartDateTime,
-                        ::activateCouponFailure
-                    )
+                    if (ticket != null) {
+                        coupon?.reactivate(
+                            ticket?.coupon_reactivation_key ?: "",
+                            MobilityboxIdentificationMedium(identififcationMediumData!!),
+                            null,
+                            ::reactivateTicketCompletion,
+                            ::reactivateTicketFailure
+                        )
+                    } else {
+                        coupon?.activate(
+                            MobilityboxIdentificationMedium(identififcationMediumData!!),
+                            ::activateCouponCompletion,
+                            activationStartDateTime,
+                            ::activateCouponFailure
+                        )
+                    }
                 } else if (onlyTariffSettingsValid) {
                     Log.d("DEBUG_activeCoupon", "should update tariff settings only")
                 }
