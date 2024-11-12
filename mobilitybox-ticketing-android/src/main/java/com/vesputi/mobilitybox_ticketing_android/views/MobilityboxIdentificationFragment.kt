@@ -215,7 +215,7 @@ class MobilityboxIdentificationFragment : Fragment() {
 
     fun activateCouponFailure(mobilityboxError: MobilityboxError) {
         Log.e("IDENTICATION_VIEW", "Error while activation coupon: ${mobilityboxError.toString()}")
-        (parentFragment as MobilityboxBottomSheetFragment).activateCouponFailure()
+        (parentFragment as MobilityboxBottomSheetFragment).activateCouponFailure(mobilityboxError)
         activationRunning = false
     }
 
@@ -227,7 +227,7 @@ class MobilityboxIdentificationFragment : Fragment() {
 
     fun reactivateTicketFailure(mobilityboxError: MobilityboxError) {
         Log.e("IDENTICATION_VIEW", "Error while reactivate coupon: ${mobilityboxError.toString()}")
-        (parentFragment as MobilityboxBottomSheetFragment).reactivateTicketFailure()
+        (parentFragment as MobilityboxBottomSheetFragment).reactivateTicketFailure(mobilityboxError)
         activationRunning = false
     }
 

@@ -167,13 +167,17 @@ class MobilityboxCoupon(
                 val body = response?.body?.string()
                 if (response.code != 201) {
                     if (failure != null) {
-                        if (response.code == 422) {
+                        if (response.code == 422 || response.code == 400) {
                             val gson = GsonBuilder().create()
                             val data = gson.fromJson(body, ActivateCouponErrorResponse::class.java)
                             if (data.message.startsWith("identification_medium:")) {
                                 failure(MobilityboxError.IDENTIFICATION_MEDIUM_NOT_VALID)
                             } else if (data.message.startsWith("tariff_settings:")) {
                                 failure(MobilityboxError.TARIFF_SETTINGS_NOT_VALID)
+                            } else if (data.message.startsWith("Ticket cannot be activated yet")) {
+                                failure(MobilityboxError.BEFORE_EARLIEST_ACTIVATION_START_DATETIME)
+                            } else if (data.message.startsWith("Ticket cannot be activated anymore")) {
+                                failure(MobilityboxError.COUPON_ACTIVATION_EXPIRED)
                             } else {
                                 failure(MobilityboxError.UNKOWN)
                             }

@@ -13,6 +13,7 @@ import com.vesputi.mobilitybox_ticketing_android.R
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.gson.internal.bind.util.ISO8601Utils
 import com.vesputi.mobilitybox_ticketing_android.models.MobilityboxCoupon
+import com.vesputi.mobilitybox_ticketing_android.models.MobilityboxError
 import com.vesputi.mobilitybox_ticketing_android.models.MobilityboxTicket
 import com.vesputi.mobilitybox_ticketing_android.models.MobilityboxTicketCode
 import java.text.ParsePosition
@@ -79,8 +80,8 @@ class MobilityboxBottomSheetFragment : BottomSheetDialogFragment() {
         close()
     }
 
-    fun activateCouponFailure() {
-        activity?.supportFragmentManager?.setFragmentResult("activateCouponFailure", bundleOf())
+    fun activateCouponFailure(mobilityboxError: MobilityboxError?) {
+        activity?.supportFragmentManager?.setFragmentResult("activateCouponFailure", bundleOf("mobilityboxError" to mobilityboxError))
     }
 
     fun reactivateTicketCompletion(ticketCode: MobilityboxTicketCode) {
@@ -88,8 +89,8 @@ class MobilityboxBottomSheetFragment : BottomSheetDialogFragment() {
         close()
     }
 
-    fun reactivateTicketFailure() {
-        activity?.supportFragmentManager?.setFragmentResult("reactivateTicketFailure", bundleOf())
+    fun reactivateTicketFailure(mobilityboxError: MobilityboxError?) {
+        activity?.supportFragmentManager?.setFragmentResult("reactivateTicketFailure", bundleOf("mobilityboxError" to mobilityboxError))
     }
 
     fun close() {

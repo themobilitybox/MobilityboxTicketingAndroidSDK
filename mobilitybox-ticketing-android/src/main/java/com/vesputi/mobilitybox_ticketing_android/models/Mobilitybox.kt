@@ -1,6 +1,8 @@
 package com.vesputi.mobilitybox_ticketing_android.models
 
 import android.content.SharedPreferences
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
 object Mobilitybox {
     lateinit var preferences: SharedPreferences
@@ -38,8 +40,7 @@ object MobilityboxApi {
     data class MobilityboxApiConfig(val apiURL: String) {}
 }
 
-
-
-enum class MobilityboxError {
-    UNKOWN, RETRY_LATER, NOT_REACTIVATABLE, GOOGLE_PASS_NOT_POSSIBLE, GOOGLE_PASS_NOT_AVAILABLE, IDENTIFICATION_MEDIUM_NOT_VALID, TARIFF_SETTINGS_NOT_VALID
+@Parcelize
+enum class MobilityboxError : Parcelable {
+    UNKOWN, RETRY_LATER, NOT_REACTIVATABLE, GOOGLE_PASS_NOT_POSSIBLE, GOOGLE_PASS_NOT_AVAILABLE, IDENTIFICATION_MEDIUM_NOT_VALID, TARIFF_SETTINGS_NOT_VALID, BEFORE_EARLIEST_ACTIVATION_START_DATETIME, COUPON_ACTIVATION_EXPIRED
 }
