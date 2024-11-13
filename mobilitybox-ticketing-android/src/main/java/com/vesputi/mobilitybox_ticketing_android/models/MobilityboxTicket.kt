@@ -8,7 +8,6 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
 import com.google.gson.internal.bind.util.ISO8601Utils
 import kotlinx.parcelize.Parcelize
-import kotlinx.parcelize.RawValue
 import okhttp3.*
 import java.io.IOException
 import java.net.URL
@@ -17,7 +16,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-@Parcelize
 class MobilityboxTicket(
     val id: String,
     val coupon_id: String,
@@ -33,6 +31,26 @@ class MobilityboxTicket(
     var createdAt: Date? = Date(),
     var wasReactivated: Boolean? = false
 ) : Parcelable {
+
+    constructor(parcel: Parcel) : this(
+        parcel.readString().toString(), // id
+        parcel.readString().toString(), // coupon_id
+        parcel.readString(), // coupon_reactivation_key
+        parcel.readParcelable(MobilityboxOrderedProduct::class.java.classLoader), // product
+        parcel.readParcelable(MobilityboxTicketDetails::class.java.classLoader), // ticket
+        parcel.readParcelable(MobilityboxTicketArea::class.java.classLoader), // area
+        parcel.readString().toString(), // environment
+        parcel.readString().toString(), // valid_from
+        parcel.readString().toString(), // valid_until
+        parcel.readString().toString(), // ticket_created_at
+        parcel.readString().toString(), // sold_at
+        Date(parcel.readLong()), // createdAt
+        parcel.readByte() != 0.toByte() // wasReactivated
+    ) {
+        if (this.createdAt?.time ?: -1L == -1L) {
+            this.createdAt = null
+        }
+    }
 
     fun getTitle(): (String) {
         return product?.local_ticket_name ?: "${this.area?.properties?.city_name} - ${this.product?.getTitle()?.trim()}"
@@ -182,6 +200,36 @@ class MobilityboxTicket(
 
             }
         })
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(id) // id
+        parcel.writeString(coupon_id) // coupon_id
+        parcel.writeString(coupon_reactivation_key) // coupon_reactivation_key
+        parcel.writeParcelable(product, flags) // product
+        parcel.writeParcelable(ticket, flags) // ticket
+        parcel.writeParcelable(area, flags) // area
+        parcel.writeString(environment) // environment
+        parcel.writeString(valid_from) // valid_from
+        parcel.writeString(valid_until) // valid_until
+        parcel.writeString(ticket_created_at) // ticket_created_at
+        parcel.writeString(sold_at) // sold_at
+        parcel.writeLong(createdAt?.time ?: -1) // createdAt
+        parcel.writeByte(if (wasReactivated == true) 1 else 0) // wasReactivated
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<MobilityboxTicket> {
+        override fun createFromParcel(parcel: Parcel): MobilityboxTicket {
+            return MobilityboxTicket(parcel)
+        }
+
+        override fun newArray(size: Int): Array<MobilityboxTicket?> {
+            return arrayOfNulls(size)
+        }
     }
 }
 
