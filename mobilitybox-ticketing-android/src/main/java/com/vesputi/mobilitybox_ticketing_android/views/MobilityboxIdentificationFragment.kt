@@ -11,10 +11,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.JavascriptInterface
-import android.webkit.WebResourceRequest
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.webkit.*
 import androidx.fragment.app.Fragment
 import com.vesputi.mobilitybox_ticketing_android.R
 import com.google.gson.GsonBuilder
@@ -81,11 +78,15 @@ class MobilityboxIdentificationFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         WebView.setWebContentsDebuggingEnabled(true)
+
         identificationView = view.findViewById(R.id.webView)
 
         with(identificationView)  {
             settings.javaScriptEnabled = true
             settings.setDomStorageEnabled(true)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                settings.forceDark = WebSettings.FORCE_DARK_OFF
+            }
 
             loadDataWithBaseURL("about:blank",
                 Mobilitybox.identificationViewEngine.engineString!!, "text/html", "utf-8", null)

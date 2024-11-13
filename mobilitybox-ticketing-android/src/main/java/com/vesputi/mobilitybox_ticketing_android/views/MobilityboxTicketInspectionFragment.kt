@@ -1,10 +1,12 @@
 package com.vesputi.mobilitybox_ticketing_android.views
 
+import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.vesputi.mobilitybox_ticketing_android.R
@@ -37,6 +39,9 @@ class MobilityboxTicketInspectionFragment : Fragment() {
         with(ticketInspectionView)  {
             settings.javaScriptEnabled = true
             settings.setDomStorageEnabled(true)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                settings.forceDark = WebSettings.FORCE_DARK_OFF
+            }
 
             loadDataWithBaseURL("about:blank", Mobilitybox.renderingEngine.engineString!!, "text/html", "utf-8", null)
 
