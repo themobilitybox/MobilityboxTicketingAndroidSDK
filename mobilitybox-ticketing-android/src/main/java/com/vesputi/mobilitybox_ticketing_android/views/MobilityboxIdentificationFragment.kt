@@ -62,9 +62,17 @@ class MobilityboxIdentificationFragment : Fragment() {
                             loadWebView()
                         }
                     }
+                } else {
+                    product = coupon?.product
+                    this.activity?.runOnUiThread {
+                        loadWebView()
+                    }
                 }
             } else {
                 product = coupon?.product
+                this.activity?.runOnUiThread {
+                    loadWebView()
+                }
             }
         }
     }
