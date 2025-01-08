@@ -46,7 +46,7 @@ class MobilityboxIdentificationFragment : Fragment() {
             }
 
             if (ticket != null) {
-                val reactivatableCycle = coupon?.subscription?.subscription_cycles?.first { cycle ->
+                val reactivatableCycle = coupon?.subscription?.subscription_cycles?.reversed()?.first { cycle ->
                     cycle.ordered && !cycle.coupon_activated
                 }
 
