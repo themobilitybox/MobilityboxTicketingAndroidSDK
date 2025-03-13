@@ -33,7 +33,6 @@ class MobilityboxTicketInspectionFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        WebView.setWebContentsDebuggingEnabled(true)
         ticketInspectionView = view.findViewById(R.id.webView)
 
         with(ticketInspectionView)  {

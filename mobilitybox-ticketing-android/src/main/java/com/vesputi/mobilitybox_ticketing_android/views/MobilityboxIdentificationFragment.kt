@@ -85,8 +85,6 @@ class MobilityboxIdentificationFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        WebView.setWebContentsDebuggingEnabled(true)
-
         identificationView = view.findViewById(R.id.webView)
 
         with(identificationView)  {
