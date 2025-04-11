@@ -146,7 +146,7 @@ class MobilityboxCoupon(
         activateCall(bodyJSON, completion, failure)
     }
 
-    private fun activateCall(bodyJSON: String, completion: (MobilityboxTicketCode) -> (Unit), failure: ((error: MobilityboxError) -> Unit)? = null) {
+    fun activateCall(bodyJSON: String, completion: (MobilityboxTicketCode) -> (Unit), failure: ((error: MobilityboxError) -> Unit)? = null) {
         val url = URL("${MobilityboxApi.apiUrl}/ticketing/coupons/${this.id}/activate.json")
         Log.d("DEBUG_ACTIVATE_URL", url.toString())
         val request = Request.Builder()
@@ -201,6 +201,10 @@ class MobilityboxCoupon(
 
     fun getDescription(): (String) {
         return "${if (product.getDescription().isBlank()) "" else product.getDescription() + " "}In der folgenden Tarifzone: ${area.properties.local_zone_name}"
+    }
+
+    fun isRestoredCoupon(): (Boolean) {
+        return original_coupon_id != null
     }
 
     fun tariffSettingsToString(): (String) {

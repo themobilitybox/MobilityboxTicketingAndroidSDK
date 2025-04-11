@@ -32,6 +32,7 @@ class MobilityboxIdentificationFragment : Fragment() {
     private var product: MobilityboxProduct? = null
     private var activationStartDateTime: Date? = null
     var activationRunning: Boolean = false
+    var activationComplete: Boolean = false
     private var pageFinished: Boolean = false
     private var webView: WebView? = null
 
@@ -42,34 +43,62 @@ class MobilityboxIdentificationFragment : Fragment() {
             ticket = it.get("ticket") as MobilityboxTicket?
             val activationStartDateTimeString = it.get("activationStartDateTime") as String?
             if (activationStartDateTimeString != null) {
-                activationStartDateTime = ISO8601Utils.parse(activationStartDateTimeString, ParsePosition(0))
+                activationStartDateTime =
+                    ISO8601Utils.parse(activationStartDateTimeString, ParsePosition(0))
+            }
+            checkToLoadDifferentProduct()
+        }
+    }
+
+    fun checkToInstantlyActivateCoupon(couldNotActivate: () -> (Unit)) {
+        Log.d("IDENTIFICATION_VIEW", "checkToInstantlyActivateCoupon")
+        if (coupon?.isRestoredCoupon() == true ) {
+            if (!activationRunning && !activationComplete) {
+                activationRunning = true
+                coupon?.activateCall("{}", ::activateCouponCompletion) {
+                    Log.d("IDENTIFICATION_VIEW", "checkToInstantlyActivateCoupon FAILED")
+                    activationRunning = false
+                    couldNotActivate()
+                }
+            }
+        } else {
+            couldNotActivate()
+        }
+    }
+
+    fun checkToLoadDifferentProduct() {
+        if (ticket != null) {
+            val reactivatableCycle = coupon?.subscription?.subscription_cycles?.reversed()?.first { cycle ->
+                cycle.ordered && !cycle.coupon_activated
             }
 
-            if (ticket != null) {
-                val reactivatableCycle = coupon?.subscription?.subscription_cycles?.reversed()?.first { cycle ->
-                    cycle.ordered && !cycle.coupon_activated
-                }
-
-                if (reactivatableCycle?.product_id != null && reactivatableCycle.product_id != coupon?.product?.id) {
-                    MobilityboxProductCode(reactivatableCycle.product_id).fetchProduct({ fetchedProduct ->
-                        this.product = fetchedProduct
-                        this.activity?.runOnUiThread {
-                            loadWebView()
-                        }
-                    }) {
-                        this.product = coupon?.product
+            if (reactivatableCycle?.product_id != null && reactivatableCycle.product_id != coupon?.product?.id) {
+                MobilityboxProductCode(reactivatableCycle.product_id).fetchProduct({ fetchedProduct ->
+                    this.product = fetchedProduct
+                    checkToInstantlyActivateCoupon {
                         this.activity?.runOnUiThread {
                             loadWebView()
                         }
                     }
-                } else {
-                    product = coupon?.product
-                    this.activity?.runOnUiThread {
-                        loadWebView()
+                }) {
+                    this.product = coupon?.product
+                    checkToInstantlyActivateCoupon {
+                        this.activity?.runOnUiThread {
+                            loadWebView()
+                        }
                     }
                 }
             } else {
                 product = coupon?.product
+                checkToInstantlyActivateCoupon {
+                    this.activity?.runOnUiThread {
+                        loadWebView()
+                    }
+                }
+            }
+        } else {
+            product = coupon?.product
+            checkToInstantlyActivateCoupon {
                 this.activity?.runOnUiThread {
                     loadWebView()
                 }
@@ -102,7 +131,9 @@ class MobilityboxIdentificationFragment : Fragment() {
                 override fun onPageFinished(view: WebView?, url: String?) {
                     webView = view
                     if (product != null) {
-                        loadWebView()
+                        checkToInstantlyActivateCoupon {
+                            loadWebView()
+                        }
                     }
                     pageFinished = true
                     super.onPageFinished(view, url)
@@ -131,7 +162,6 @@ class MobilityboxIdentificationFragment : Fragment() {
                         return false
                     }
 
-                    // Otherwise, the link is not for a page on my site, so launch another Activity that handles URLs
                     Intent(Intent.ACTION_VIEW, uri).apply {
                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         setPackage("com.android.chrome")
@@ -218,6 +248,7 @@ class MobilityboxIdentificationFragment : Fragment() {
         Log.d("RECEIVED_TICKET_CODE", ticketCode.ticketId)
         (parentFragment as MobilityboxBottomSheetFragment).activateCouponCallback(ticketCode)
         activationRunning = false
+        activationComplete = true
     }
 
     fun activateCouponFailure(mobilityboxError: MobilityboxError) {
@@ -230,6 +261,7 @@ class MobilityboxIdentificationFragment : Fragment() {
         Log.d("RECEIVED_TICKET_CODE", ticketCode.ticketId)
         (parentFragment as MobilityboxBottomSheetFragment).reactivateTicketCompletion(ticketCode)
         activationRunning = false
+        activationComplete = true
     }
 
     fun reactivateTicketFailure(mobilityboxError: MobilityboxError) {
@@ -244,7 +276,7 @@ class MobilityboxIdentificationFragment : Fragment() {
         fun activateCoupon(identififcationMediumData: String?, tariffSettingsData: String?) {
             Log.d("DEBUG_activeCoupon", "identificationMediumData: $identififcationMediumData")
             Log.d("DEBUG_activeCoupon", "tariffSettingsData: $tariffSettingsData")
-            if (coupon != null && !activationRunning) {
+            if (coupon != null && !activationRunning && !activationComplete) {
                 val identificationMediumAndTariffsettingsValid = (identififcationMediumData != null && tariffSettingsData != null)
                 val onlyIdentificationMediumValid = (identififcationMediumData != null && tariffSettingsData == null)
                 val onlyTariffSettingsValid = (identififcationMediumData == null && tariffSettingsData != null)
