@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.github.themobilitybox'
-version = '7.3.1'
+version = '7.4.0'
 
 android {
     namespace 'com.vesputi.mobilitybox_ticketing_android'
@@ -19,8 +19,8 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
 
-        versionCode 17
-        versionName "7.3.1"
+        versionCode 18
+        versionName "7.4.0"
     }
 
     buildTypes {
